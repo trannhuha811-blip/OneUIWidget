@@ -29,13 +29,13 @@
             android:textColor="@color/white_70"
             android:textSize="14sp" />
 
-        <!-- THẺ PREVIEW NHANH TRẠNG THÁI WIDGET -->
+        <!-- KHU VỰC XEM TRƯỚC WIDGET (PREVIEW CARD) -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             app:cardBackgroundColor="@color/surface_card"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="24dp"
             app:strokeColor="@color/surface_card_stroke"
             app:strokeWidth="1dp">
 
@@ -48,30 +48,20 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="TRẠNG THÁI HỆ THỐNG"
+                    android:text="XEM TRƯỚC GIAO DIỆN WIDGET"
                     android:textColor="@color/forecast_gold"
                     android:textSize="12sp"
                     android:fontFamily="sans-serif-medium"
                     android:letterSpacing="0.05" />
 
-                <TextView
-                    android:id="@+id/tv_preview_info"
-                    android:layout_width="wrap_content"
+                <!-- Nhúng trực tiếp layout widget để xem trước ngay trong app -->
+                <include
+                    android:id="@+id/widget_preview_layout"
+                    layout="@layout/widget_large"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Hôm nay: Đang tải dữ liệu..."
-                    android:textColor="@color/white"
-                    android:textSize="15sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:layout_marginTop="12dp" />
 
-                <TextView
-                    android:id="@+id/tv_lunar_preview"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Lịch âm: Đang tính toán..."
-                    android:textColor="@color/white_70"
-                    android:textSize="13sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -141,7 +131,7 @@
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="0.8dp"
+                    android:layout_height="1dp"
                     android:layout_marginTop="12dp"
                     android:layout_marginBottom="12dp"
                     android:background="@color/surface_card_stroke" />
@@ -186,7 +176,7 @@
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="0.8dp"
+                    android:layout_height="1dp"
                     android:layout_marginTop="12dp"
                     android:layout_marginBottom="12dp"
                     android:background="@color/surface_card_stroke" />
@@ -291,7 +281,7 @@
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="0.8dp"
+                    android:layout_height="1dp"
                     android:layout_marginTop="12dp"
                     android:layout_marginBottom="12dp"
                     android:background="@color/surface_card_stroke" />
@@ -308,7 +298,7 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/layout_fixed_city"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"

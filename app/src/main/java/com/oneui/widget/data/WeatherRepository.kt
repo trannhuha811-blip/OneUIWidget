@@ -1,16 +1,19 @@
 package com.oneui.widget.data
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
+import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -22,10 +25,28 @@ class WeatherRepository(private val context: Context) {
 
     private val prefs = WidgetPreferences(context)
     private val httpClient = OkHttpClient.Builder()
-        .connectTimeout(10, TimeUnit.SECONDS)
-        .readTimeout(10, TimeUnit.SECONDS)
+        .connectTimeout(5, TimeUnit.SECONDS)
+        .readTimeout(5, TimeUnit.SECONDS)
         .build()
 
+    /**
+     * Lấy dữ liệu nhanh từ bộ nhớ cache hoặc mặc định (chạy ngay lập tức, không chờ mạng)
+     */
+    fun getCachedOrDefaultWeather(): WidgetWeatherData {
+        val cached = prefs.cachedWeatherJson
+        if (!cached.isNullOrEmpty()) {
+            try {
+                return parseWeatherData(cached, prefs.fixedCityName)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        return getFallbackWeatherData(prefs.fixedCityName)
+    }
+
+    /**
+     * Lấy dữ liệu thời tiết mới nhất qua mạng (có timeout an toàn chống treo)
+     */
     suspend fun getWeatherData(): WidgetWeatherData = withContext(Dispatchers.IO) {
         val (lat, lon, locationName) = determineCoordinatesAndName()
 
@@ -66,11 +87,20 @@ class WeatherRepository(private val context: Context) {
     }
 
     private suspend fun determineCoordinatesAndName(): Triple<Double, Double, String> {
-        if (!prefs.useAutoLocation) {
+        val hasPermission = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (!prefs.useAutoLocation || !hasPermission) {
             return Triple(prefs.fixedLatitude, prefs.fixedLongitude, prefs.fixedCityName)
         }
 
-        val location = getLastKnownLocation()
+        // Giới hạn thời gian chờ vị trí tối đa 2.5 giây
+        val location = withTimeoutOrNull(2500L) {
+            getLastKnownLocation()
+        }
+
         if (location != null) {
             val geocodedName = getSubLocalityName(location.latitude, location.longitude)
             val finalName = geocodedName ?: prefs.fixedCityName
@@ -85,10 +115,14 @@ class WeatherRepository(private val context: Context) {
         try {
             val fusedClient = LocationServices.getFusedLocationProviderClient(context)
             fusedClient.lastLocation
-                .addOnSuccessListener { loc -> cont.resume(loc) }
-                .addOnFailureListener { cont.resume(null) }
+                .addOnSuccessListener { loc ->
+                    if (cont.isActive) cont.resume(loc)
+                }
+                .addOnFailureListener {
+                    if (cont.isActive) cont.resume(null)
+                }
         } catch (e: Exception) {
-            cont.resume(null)
+            if (cont.isActive) cont.resume(null)
         }
     }
 
@@ -98,7 +132,6 @@ class WeatherRepository(private val context: Context) {
             val addresses = geocoder.getFromLocation(lat, lon, 1)
             if (!addresses.isNullOrEmpty()) {
                 val addr = addresses[0]
-                // Ưu tiên: Phường/Xã (subLocality), sau đó đến Quận/Huyện (subAdminArea/locality)
                 val subLoc = addr.subLocality
                 val locality = addr.locality ?: addr.subAdminArea
                 when {

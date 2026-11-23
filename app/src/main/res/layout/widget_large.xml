@@ -237,7 +237,7 @@
     <!-- ĐƯỜNG KẺ NGĂN CÁCH MỎNG GIỮA PHẦN TRÊN VÀ GIỮA -->
     <View
         android:layout_width="match_parent"
-        android:layout_height="0.8dp"
+        android:layout_height="1dp"
         android:layout_marginTop="12dp"
         android:layout_marginBottom="10dp"
         android:background="@color/white_15" />
@@ -253,9 +253,8 @@
         <LinearLayout
             android:id="@+id/area_events_timeline"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1.0"
-            android:gravity="center_vertical"
             android:orientation="vertical"
             android:paddingEnd="10dp">
 
@@ -268,7 +267,7 @@
                 <!-- Cột timeline: chấm tròn + vạch kẻ dọc -->
                 <LinearLayout
                     android:layout_width="16dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
                     android:orientation="vertical">
 
@@ -279,8 +278,8 @@
                         android:background="@drawable/bg_timeline_dot" />
 
                     <View
-                        android:layout_width="1.2dp"
-                        android:layout_height="match_parent"
+                        android:layout_width="1dp"
+                        android:layout_height="32dp"
                         android:layout_marginTop="2dp"
                         android:background="@color/timeline_line" />
                 </LinearLayout>
@@ -301,7 +300,7 @@
                         android:textColor="@color/white"
                         android:textSize="13sp"
                         android:fontFamily="sans-serif-bold"
-                        android:singleLine="true"
+                        android:maxLines="1"
                         android:ellipsize="end" />
 
                     <TextView
@@ -313,7 +312,7 @@
                         android:textColor="@color/white_70"
                         android:textSize="11sp"
                         android:textStyle="italic"
-                        android:singleLine="true"
+                        android:maxLines="1"
                         android:ellipsize="end" />
                 </LinearLayout>
             </LinearLayout>
@@ -326,7 +325,7 @@
 
                 <LinearLayout
                     android:layout_width="16dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
                     android:orientation="vertical">
 
@@ -351,7 +350,7 @@
                         android:textColor="@color/white"
                         android:textSize="13sp"
                         android:fontFamily="sans-serif-bold"
-                        android:singleLine="true"
+                        android:maxLines="1"
                         android:ellipsize="end" />
 
                     <TextView
@@ -363,7 +362,7 @@
                         android:textColor="@color/white_70"
                         android:textSize="11sp"
                         android:textStyle="italic"
-                        android:singleLine="true"
+                        android:maxLines="1"
                         android:ellipsize="end" />
                 </LinearLayout>
             </LinearLayout>
@@ -387,7 +386,7 @@
     <!-- ĐƯỜNG KẺ NGĂN CÁCH MỎNG GIỮA PHẦN GIỮA VÀ DƯỚI -->
     <View
         android:layout_width="match_parent"
-        android:layout_height="0.8dp"
+        android:layout_height="1dp"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:background="@color/white_15" />
@@ -443,7 +442,7 @@
 
         <!-- ĐƯỜNG PHÂN CÁCH DỌC MỎNG -->
         <View
-            android:layout_width="0.8dp"
+            android:layout_width="1dp"
             android:layout_height="36dp"
             android:layout_marginEnd="6dp"
             android:background="@color/white_15" />

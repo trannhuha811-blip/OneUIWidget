@@ -20,10 +20,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.oneui.widget.data.CalendarEventHelper
 import com.oneui.widget.data.WeatherRepository
+import com.oneui.widget.data.WeatherUtils
 import com.oneui.widget.data.WidgetPreferences
 import com.oneui.widget.databinding.ActivityMainBinding
 import com.oneui.widget.lunar.LunarCalendarConverter
+import com.oneui.widget.ui.CalendarGridRenderer
 import com.oneui.widget.ui.OneUIWidgetProvider
 import com.oneui.widget.worker.WidgetUpdateWorker
 import kotlinx.coroutines.Dispatchers
@@ -44,6 +47,7 @@ class MainActivity : AppCompatActivity() {
         if (fineGranted || coarseGranted) {
             Toast.makeText(this, "Đã cấp quyền vị trí!", Toast.LENGTH_SHORT).show()
             updateUIState()
+            loadPreviewData()
             OneUIWidgetProvider.updateAllWidgets(this)
         }
     }
@@ -54,6 +58,7 @@ class MainActivity : AppCompatActivity() {
         if (isGranted) {
             Toast.makeText(this, "Đã cấp quyền đọc lịch!", Toast.LENGTH_SHORT).show()
             updateUIState()
+            loadPreviewData()
             OneUIWidgetProvider.updateAllWidgets(this)
         }
     }
@@ -77,6 +82,9 @@ class MainActivity : AppCompatActivity() {
         updateUIState()
         loadPreviewData()
 
+        // Cập nhật lại toàn bộ widget ngoài màn hình chính ngay lập tức
+        OneUIWidgetProvider.updateAllWidgets(this)
+
         // Xin quyền thông báo trên Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
@@ -90,6 +98,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateUIState()
+        loadPreviewData()
     }
 
     private fun setupListeners() {
@@ -137,6 +146,7 @@ class MainActivity : AppCompatActivity() {
             prefs.useAutoLocation = isChecked
             binding.layoutFixedCity.visibility = if (isChecked) View.GONE else View.VISIBLE
             OneUIWidgetProvider.updateAllWidgets(this)
+            loadPreviewData()
         }
 
         binding.edtFixedCity.setOnFocusChangeListener { _, hasFocus ->
@@ -145,11 +155,12 @@ class MainActivity : AppCompatActivity() {
                 if (!text.isNullOrEmpty()) {
                     prefs.fixedCityName = text
                     OneUIWidgetProvider.updateAllWidgets(this)
+                    loadPreviewData()
                 }
             }
         }
 
-        // Nút thêm Widget vào màn hình chính (One UI Home Launcher pin widget)
+        // Nút thêm Widget vào màn hình chính
         binding.btnPinWidget.setOnClickListener {
             pinWidgetToHomeScreen()
         }
@@ -163,61 +174,135 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateUIState() {
-        // Kiểm tra quyền vị trí
         val hasLocation = ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
-        if (hasLocation) {
-            binding.btnGrantLocation.text = "Đã cấp"
-            binding.btnGrantLocation.isEnabled = false
-        } else {
-            binding.btnGrantLocation.text = "Cấp quyền"
-            binding.btnGrantLocation.isEnabled = true
-        }
+        binding.btnGrantLocation.text = if (hasLocation) "Đã cấp" else "Cấp quyền"
+        binding.btnGrantLocation.isEnabled = !hasLocation
 
-        // Kiểm tra quyền lịch
         val hasCalendar = ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.READ_CALENDAR
         ) == PackageManager.PERMISSION_GRANTED
-        if (hasCalendar) {
-            binding.btnGrantCalendar.text = "Đã cấp"
-            binding.btnGrantCalendar.isEnabled = false
-        } else {
-            binding.btnGrantCalendar.text = "Cấp quyền"
-            binding.btnGrantCalendar.isEnabled = true
-        }
+        binding.btnGrantCalendar.text = if (hasCalendar) "Đã cấp" else "Cấp quyền"
+        binding.btnGrantCalendar.isEnabled = !hasCalendar
 
-        // Kiểm tra tối ưu pin
         val powerManager = getSystemService(Context.POWER_SERVICE) as? PowerManager
         val isIgnoringBattery = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             powerManager?.isIgnoringBatteryOptimizations(packageName) ?: false
         } else true
 
-        if (isIgnoringBattery) {
-            binding.btnBatteryOptimization.text = "Đã bật"
-            binding.btnBatteryOptimization.isEnabled = false
-        } else {
-            binding.btnBatteryOptimization.text = "Cài đặt"
-            binding.btnBatteryOptimization.isEnabled = true
+        binding.btnBatteryOptimization.text = if (isIgnoringBattery) "Đã bật" else "Cài đặt"
+        binding.btnBatteryOptimization.isEnabled = !isIgnoringBattery
+    }
+
+    /**
+     * Nạp dữ liệu hiển thị trực tiếp lên khung Preview Widget bên trong App
+     */
+    private fun loadPreviewData() {
+        val cal = Calendar.getInstance()
+        val hour = cal.get(Calendar.HOUR_OF_DAY)
+        val dayOfMonth = cal.get(Calendar.DAY_OF_MONTH)
+        val month = cal.get(Calendar.MONTH) + 1
+        val dayOfWeekInt = cal.get(Calendar.DAY_OF_WEEK)
+
+        val preview = binding.widgetPreviewLayout
+
+        // Lời chào & Ngày giờ
+        preview.tvGreeting.text = WeatherUtils.getGreetingByHour(hour)
+        preview.tvSolarMonth.text = "THÁNG $month"
+        preview.tvSolarDay.text = dayOfMonth.toString()
+        preview.tvDayOfWeek.text = when (dayOfWeekInt) {
+            Calendar.MONDAY -> "Thứ Hai"
+            Calendar.TUESDAY -> "Thứ Ba"
+            Calendar.WEDNESDAY -> "Thứ Tư"
+            Calendar.THURSDAY -> "Thứ Năm"
+            Calendar.FRIDAY -> "Thứ Sáu"
+            Calendar.SATURDAY -> "Thứ Bảy"
+            Calendar.SUNDAY -> "Chủ Nhật"
+            else -> "Thứ Hai"
+        }
+
+        // Lịch âm Can Chi
+        val lunar = LunarCalendarConverter.getTodayLunar()
+        preview.tvLunarBadge.text = lunar.pillText
+
+        // Lưới lịch tháng
+        try {
+            val bitmap = CalendarGridRenderer.renderCalendarBitmap(this, 440, 310)
+            preview.imgCalendarGrid.setImageBitmap(bitmap)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        // Sự kiện & Ngày lễ
+        val eventHelper = CalendarEventHelper(this)
+        val events = eventHelper.getUpcomingEvents(2)
+        if (events.isNotEmpty()) {
+            preview.tvEvent1Title.text = events[0].title
+            preview.tvEvent1Subtitle.text = events[0].subtitle
+        }
+        if (events.size > 1) {
+            preview.tvEvent2Title.text = events[1].title
+            preview.tvEvent2Subtitle.text = events[1].subtitle
+        }
+
+        // Thời tiết nhanh từ cache/mặc định trước
+        val weatherRepo = WeatherRepository(this)
+        val initWeather = weatherRepo.getCachedOrDefaultWeather()
+        bindWeatherToPreview(initWeather)
+
+        // Sau đó gọi mạng ngầm nạp thời tiết mới
+        lifecycleScope.launch {
+            val freshWeather = withContext(Dispatchers.IO) { weatherRepo.getWeatherData() }
+            bindWeatherToPreview(freshWeather)
         }
     }
 
-    private fun loadPreviewData() {
-        val lunar = LunarCalendarConverter.getTodayLunar()
-        val cal = Calendar.getInstance()
-        val d = cal.get(Calendar.DAY_OF_MONTH)
-        val m = cal.get(Calendar.MONTH) + 1
-        val y = cal.get(Calendar.YEAR)
+    private fun bindWeatherToPreview(weather: com.oneui.widget.data.WidgetWeatherData) {
+        val preview = binding.widgetPreviewLayout
+        preview.tvMainTemp.text = "${weather.current.temp}°"
+        preview.tvWeatherDesc.text = weather.current.conditionDescription
+        preview.tvLocationName.text = weather.current.locationName
+        preview.tvSunriseInfo.text = "${weather.current.minTempToday}°C"
+        preview.tvSunsetInfo.text = "${weather.current.maxTempToday}°C"
 
-        binding.tvPreviewInfo.text = "Hôm nay: Ngày $d tháng $m năm $y"
-        binding.tvLunarPreview.text = "Lịch Âm: ${lunar.day}/${lunar.month} • Năm ${lunar.yearCanChi} • Can Chi: ${lunar.dayCanChi} (Tiết: ${lunar.solarTerm})"
+        preview.ivBottomTodayIcon.setImageResource(WeatherUtils.getWeatherIcon(weather.current.weatherCode))
+        preview.tvBottomTodayTemp.text = "${weather.current.temp}°C"
+        preview.tvBottomTodayMinmax.text = "${weather.current.minTempToday}°  ${weather.current.maxTempToday}°"
 
-        lifecycleScope.launch {
-            val repo = WeatherRepository(this@MainActivity)
-            val weather = withContext(Dispatchers.IO) { repo.getWeatherData() }
-            binding.tvPreviewInfo.text = "Thời tiết: ${weather.current.temp}°C, ${weather.current.conditionDescription} (${weather.current.locationName})"
+        val f = weather.forecast6Days
+        if (f.size >= 6) {
+            preview.tvF1Day.text = f[0].dayOfWeek
+            preview.ivF1Icon.setImageResource(f[0].getWeatherIconRes())
+            preview.tvF1Min.text = "↓ ${f[0].minTemp}°"
+            preview.tvF1Max.text = "↑ ${f[0].maxTemp}°"
+
+            preview.tvF2Day.text = f[1].dayOfWeek
+            preview.ivF2Icon.setImageResource(f[1].getWeatherIconRes())
+            preview.tvF2Min.text = "↓ ${f[1].minTemp}°"
+            preview.tvF2Max.text = "↑ ${f[1].maxTemp}°"
+
+            preview.tvF3Day.text = f[2].dayOfWeek
+            preview.ivF3Icon.setImageResource(f[2].getWeatherIconRes())
+            preview.tvF3Min.text = "↓ ${f[2].minTemp}°"
+            preview.tvF3Max.text = "↑ ${f[2].maxTemp}°"
+
+            preview.tvF4Day.text = f[3].dayOfWeek
+            preview.ivF4Icon.setImageResource(f[3].getWeatherIconRes())
+            preview.tvF4Min.text = "↓ ${f[3].minTemp}°"
+            preview.tvF4Max.text = "↑ ${f[3].maxTemp}°"
+
+            preview.tvF5Day.text = f[4].dayOfWeek
+            preview.ivF5Icon.setImageResource(f[4].getWeatherIconRes())
+            preview.tvF5Min.text = "↓ ${f[4].minTemp}°"
+            preview.tvF5Max.text = "↑ ${f[4].maxTemp}°"
+
+            preview.tvF6Day.text = f[5].dayOfWeek
+            preview.ivF6Icon.setImageResource(f[5].getWeatherIconRes())
+            preview.tvF6Min.text = "↓ ${f[5].minTemp}°"
+            preview.tvF6Max.text = "↑ ${f[5].maxTemp}°"
         }
     }
 

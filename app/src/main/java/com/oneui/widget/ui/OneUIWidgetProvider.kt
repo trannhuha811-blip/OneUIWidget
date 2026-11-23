@@ -6,10 +6,8 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.provider.CalendarContract
 import android.widget.RemoteViews
 import android.widget.Toast
 import com.oneui.widget.MainActivity
@@ -31,6 +29,20 @@ class OneUIWidgetProvider : AppWidgetProvider() {
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
+        // 1. Cập nhật ngay lập tức các widget được truyền vào
+        val weatherRepo = WeatherRepository(context)
+        val initialWeather = weatherRepo.getCachedOrDefaultWeather()
+        val eventHelper = CalendarEventHelper(context)
+        val upcomingEvents = eventHelper.getUpcomingEvents(2)
+        val prefs = WidgetPreferences(context)
+
+        for (widgetId in appWidgetIds) {
+            val views = RemoteViews(context.packageName, R.layout.widget_large)
+            buildWidgetViews(context, views, initialWeather, upcomingEvents, prefs)
+            appWidgetManager.updateAppWidget(widgetId, views)
+        }
+
+        // 2. Kích hoạt cập nhật dữ liệu mới qua mạng ngầm
         updateAllWidgets(context)
     }
 
@@ -48,6 +60,7 @@ class OneUIWidgetProvider : AppWidgetProvider() {
         super.onEnabled(context)
         MidnightAlarmReceiver.scheduleMidnightAlarm(context)
         WidgetUpdateWorker.enqueuePeriodicWork(context)
+        updateAllWidgets(context)
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -65,28 +78,37 @@ class OneUIWidgetProvider : AppWidgetProvider() {
         private const val REQUEST_CODE_CONFIG = 2003
 
         fun updateAllWidgets(context: Context) {
+            val appWidgetManager = AppWidgetManager.getInstance(context) ?: return
+            val componentName = ComponentName(context, OneUIWidgetProvider::class.java)
+            val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
+
+            if (appWidgetIds.isEmpty()) return
+
+            val weatherRepo = WeatherRepository(context)
+            val eventHelper = CalendarEventHelper(context)
+            val upcomingEvents = eventHelper.getUpcomingEvents(2)
+            val prefs = WidgetPreferences(context)
+
+            // BƯỚC 1: Hiển thị ngay lập tức dữ liệu Offline/Cache để widget không bao giờ bị đen hoặc trống
+            val immediateWeather = weatherRepo.getCachedOrDefaultWeather()
+            for (appWidgetId in appWidgetIds) {
+                val views = RemoteViews(context.packageName, R.layout.widget_large)
+                buildWidgetViews(context, views, immediateWeather, upcomingEvents, prefs)
+                appWidgetManager.updateAppWidget(appWidgetId, views)
+            }
+
+            // BƯỚC 2: Gọi mạng ngầm cập nhật thời tiết mới nhất
             CoroutineScope(Dispatchers.Main).launch {
-                val appWidgetManager = AppWidgetManager.getInstance(context)
-                val componentName = ComponentName(context, OneUIWidgetProvider::class.java)
-                val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
-
-                if (appWidgetIds.isEmpty()) return@launch
-
-                val weatherRepo = WeatherRepository(context)
-                val weatherData = weatherRepo.getWeatherData()
-                val eventHelper = CalendarEventHelper(context)
-                val upcomingEvents = eventHelper.getUpcomingEvents(2)
-                val prefs = WidgetPreferences(context)
-
+                val freshWeather = weatherRepo.getWeatherData()
                 for (appWidgetId in appWidgetIds) {
                     val views = RemoteViews(context.packageName, R.layout.widget_large)
-                    buildWidgetViews(context, views, weatherData, upcomingEvents, prefs)
+                    buildWidgetViews(context, views, freshWeather, upcomingEvents, prefs)
                     appWidgetManager.updateAppWidget(appWidgetId, views)
                 }
             }
         }
 
-        private fun buildWidgetViews(
+        fun buildWidgetViews(
             context: Context,
             views: RemoteViews,
             weatherData: com.oneui.widget.data.WidgetWeatherData,
@@ -102,30 +124,19 @@ class OneUIWidgetProvider : AppWidgetProvider() {
             // ==========================================
             // KHU VỰC 1: GÓC TRÊN BÊN TRÁI – THỜI TIẾT HIỆN TẠI
             // ==========================================
-            // Lời chào tự động theo giờ hệ thống
             views.setTextViewText(R.id.tv_greeting, WeatherUtils.getGreetingByHour(hour))
-
-            // Nhiệt độ chính cỡ lớn, thanh mảnh
             views.setTextViewText(R.id.tv_main_temp, "${weatherData.current.temp}°")
-
-            // Mô tả trạng thái tiếng Việt & tên địa điểm
             views.setTextViewText(R.id.tv_weather_desc, weatherData.current.conditionDescription)
             views.setTextViewText(R.id.tv_location_name, weatherData.current.locationName)
-
-            // 2 Pill Badge viền trắng mảnh: Bình minh / Hoàng hôn
             views.setTextViewText(R.id.tv_sunrise_info, "${weatherData.current.minTempToday}°C")
             views.setTextViewText(R.id.tv_sunset_info, "${weatherData.current.maxTempToday}°C")
 
             // ==========================================
             // KHU VỰC 2: GÓC TRÊN BÊN PHẢI – LỊCH DƯƠNG & LỊCH ÂM VIỆT NAM
             // ==========================================
-            // Tháng Dương lịch in hoa: "THÁNG 11"
             views.setTextViewText(R.id.tv_solar_month, "THÁNG $month")
-
-            // Số ngày cực lớn: "23"
             views.setTextViewText(R.id.tv_solar_day, dayOfMonth.toString())
 
-            // Thứ tiếng Việt
             val dayOfWeekStr = when (dayOfWeekInt) {
                 Calendar.MONDAY -> "Thứ Hai"
                 Calendar.TUESDAY -> "Thứ Ba"
@@ -166,13 +177,16 @@ class OneUIWidgetProvider : AppWidgetProvider() {
             // ==========================================
             // KHU VỰC 4: GIỮA BÊN PHẢI – LƯỚI LỊCH THÁNG (CALENDAR GRID)
             // ==========================================
-            val calendarBitmap = CalendarGridRenderer.renderCalendarBitmap(context, 440, 310)
-            views.setImageViewBitmap(R.id.img_calendar_grid, calendarBitmap)
+            try {
+                val calendarBitmap = CalendarGridRenderer.renderCalendarBitmap(context, 440, 310)
+                views.setImageViewBitmap(R.id.img_calendar_grid, calendarBitmap)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
 
             // ==========================================
             // KHU VỰC 5: HÀNG DƯỚI CÙNG – DỰ BÁO 6 NGÀY TỚI + HÔM NAY
             // ==========================================
-            // Cột trái ngoài cùng: icon lớn + nhiệt độ hiện tại + min/max
             views.setImageViewResource(
                 R.id.iv_bottom_today_icon,
                 WeatherUtils.getWeatherIcon(weatherData.current.weatherCode)
@@ -193,17 +207,8 @@ class OneUIWidgetProvider : AppWidgetProvider() {
             bindDailyForecastColumn(views, 6, forecast.getOrNull(5))
 
             // ==========================================
-            // ĐỘ MỜ NỀN TRONG SUỐT THEO TÙY CHỈNH
-            // ==========================================
-            val opacity = prefs.backgroundOpacity // 0% - 50%
-            val alpha = (opacity * 255) / 100
-            val bgColor = Color.argb(alpha, 18, 19, 22)
-            views.setInt(R.id.widget_root, "setBackgroundColor", bgColor)
-
-            // ==========================================
             // SỰ KIỆN CHẠM (CLICK LISTENERS)
             // ==========================================
-            // Nút làm mới dữ liệu
             val refreshIntent = Intent(context, OneUIWidgetProvider::class.java).apply {
                 action = ACTION_REFRESH_WIDGET
             }
