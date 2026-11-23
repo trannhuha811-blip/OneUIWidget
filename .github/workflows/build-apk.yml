@@ -22,18 +22,17 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Ensure Gradle Wrapper Jar
+    - name: Fix line endings and permissions
       run: |
+        sed -i 's/\r$//' gradlew
+        chmod +x gradlew
         mkdir -p gradle/wrapper
         if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
           curl -sLo gradle/wrapper/gradle-wrapper.jar https://raw.githubusercontent.com/gradle/gradle/v8.10.2/gradle/wrapper/gradle-wrapper.jar
         fi
 
-    - name: Grant Execute Permission to Gradlew
-      run: chmod +x gradlew
-
     - name: Build Debug APK with Gradle
-      run: ./gradlew assembleDebug --stacktrace
+      run: ./gradlew assembleDebug --no-daemon --stacktrace
 
     - name: Upload Debug APK Artifact
       uses: actions/upload-artifact@v4
