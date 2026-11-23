@@ -1,0 +1,8 @@
+<resources>
+    <style name="Theme.OneUIWidget" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@color/app_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">@color/app_background</item>
+        <item name="android:windowBackground">@color/app_background</item>
+    </style>
+</resources>

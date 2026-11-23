@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="white_90">#E6FFFFFF</color>
+    <color name="white_70">#B3FFFFFF</color>
+    <color name="white_50">#80FFFFFF</color>
+    <color name="white_30">#4DFFFFFF</color>
+    <color name="white_15">#26FFFFFF</color>
+
+    <color name="red_today">#E53935</color>
+    <color name="red_sunday">#FF4D4D</color>
+    <color name="forecast_gold">#FFE082</color>
+    <color name="temp_low_blue">#81D4FA</color>
+    <color name="temp_high_orange">#FFAB91</color>
+
+    <color name="widget_default_bg">#33000000</color>
+    <color name="timeline_line">#4DFFFFFF</color>
+    <color name="app_background">#121316</color>
+    <color name="surface_card">#1E2024</color>
+    <color name="surface_card_stroke">#30333A</color>
+</resources>
