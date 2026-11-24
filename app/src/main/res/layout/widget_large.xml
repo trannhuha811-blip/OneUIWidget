@@ -464,59 +464,55 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <!-- CỘT TRÁI NGOÀI CÙNG: ICON THỜI TIẾT + NHIỆT ĐỘ HIỆN TẠI & MIN/MAX HÔM NAY -->
+        <!-- CỘT TRÁI NGOÀI CÙNG: ICON THỜI TIẾT + NHIỆT ĐỘ HIỆN TẠI & MIN/MAX (XẾP DỌC CĂN GIỮA KHỚP ẢNH MẪU) -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1.3"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingEnd="6dp">
+            android:layout_weight="1.4"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
 
             <ImageView
                 android:id="@+id/iv_bottom_today_icon"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center_horizontal"
                 android:contentDescription="Thời tiết hôm nay"
                 android:src="@drawable/ic_weather_partly_cloudy" />
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/tv_bottom_today_temp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:orientation="vertical">
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="2dp"
+                android:fontFamily="sans-serif-bold"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:text="32°C"
+                android:textColor="@color/white"
+                android:textSize="13.5sp" />
 
-                <TextView
-                    android:id="@+id/tv_bottom_today_temp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="32°C"
-                    android:textColor="@color/white"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/tv_bottom_today_minmax"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="27°  28°"
-                    android:textColor="@color/white_70"
-                    android:textSize="10.5sp" />
-            </LinearLayout>
+            <TextView
+                android:id="@+id/tv_bottom_today_minmax"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="2dp"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:text="27°  28°"
+                android:textColor="@color/white_70"
+                android:textSize="10sp" />
         </LinearLayout>
-
-        <!-- ĐƯỜNG PHÂN CÁCH DỌC MỎNG -->
-        <FrameLayout
-            android:layout_width="1dp"
-            android:layout_height="34dp"
-            android:layout_marginEnd="6dp"
-            android:background="@color/white_15" />
 
         <!-- 6 CỘT BÊN PHẢI: HIỂN THỊ 6 NGÀY TIẾP THEO -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="4.7"
+            android:layout_weight="5.8"
             android:orientation="horizontal">
 
             <!-- Ngày 1 -->
