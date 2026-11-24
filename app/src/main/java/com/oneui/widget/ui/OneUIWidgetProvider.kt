@@ -43,7 +43,7 @@ class OneUIWidgetProvider : AppWidgetProvider() {
                 val componentName = ComponentName(context, OneUIWidgetProvider::class.java)
                 val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
 
-                if (appWidgetIds.isNullOrEmpty()) return
+                if (appWidgetIds == null || appWidgetIds.isEmpty()) return
 
                 val weatherRepo = WeatherRepository(context)
                 val upcomingEvents = safeGetEvents(context)
@@ -71,7 +71,7 @@ class OneUIWidgetProvider : AppWidgetProvider() {
             }
         }
 
-        private fun safeGetEvents(context: Context): List<WidgetEventItem> {
+        fun safeGetEvents(context: Context): List<WidgetEventItem> {
             return try {
                 CalendarEventHelper(context).getUpcomingEvents(2)
             } catch (e: Exception) {
@@ -80,7 +80,7 @@ class OneUIWidgetProvider : AppWidgetProvider() {
             }
         }
 
-        private fun safeUpdateWidget(
+        fun safeUpdateWidget(
             context: Context,
             appWidgetManager: AppWidgetManager,
             appWidgetId: Int,
