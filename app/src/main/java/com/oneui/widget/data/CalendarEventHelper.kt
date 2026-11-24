@@ -23,25 +23,33 @@ class CalendarEventHelper(private val context: Context) {
     fun getUpcomingEvents(limit: Int = 2): List<WidgetEventItem> {
         val result = mutableListOf<WidgetEventItem>()
 
-        // 1. Lấy sự kiện từ thiết bị nếu có quyền READ_CALENDAR
-        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.READ_CALENDAR)
-            == PackageManager.PERMISSION_GRANTED
-        ) {
-            val deviceEvents = queryDeviceCalendar(limit)
-            result.addAll(deviceEvents)
+        try {
+            // 1. Lấy sự kiện từ thiết bị nếu có quyền READ_CALENDAR
+            if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.READ_CALENDAR)
+                == PackageManager.PERMISSION_GRANTED
+            ) {
+                val deviceEvents = queryDeviceCalendar(limit)
+                result.addAll(deviceEvents)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
 
-        // 2. Thêm ngày lễ Việt Nam (Dương lịch & Âm lịch) nếu danh sách chưa đủ số lượng
-        val now = System.currentTimeMillis()
-        val holidays = getVietnameseHolidays().filter { it.timestamp >= now }
-            .sortedBy { it.timestamp }
+        try {
+            // 2. Thêm ngày lễ Việt Nam (Dương lịch & Âm lịch) nếu danh sách chưa đủ số lượng
+            val now = System.currentTimeMillis()
+            val holidays = getVietnameseHolidays().filter { it.timestamp >= now }
+                .sortedBy { it.timestamp }
 
-        for (h in holidays) {
-            if (result.size >= limit) break
-            // Tránh trùng lặp tiêu đề
-            if (result.none { it.title.equals(h.title, ignoreCase = true) }) {
-                result.add(h)
+            for (h in holidays) {
+                if (result.size >= limit) break
+                // Tránh trùng lặp tiêu đề
+                if (result.none { it.title.equals(h.title, ignoreCase = true) }) {
+                    result.add(h)
+                }
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
 
         // Sắp xếp lại theo thời gian
@@ -157,35 +165,40 @@ class CalendarEventHelper(private val context: Context) {
     }
 
     private fun addLunarHoliday(list: MutableList<WidgetEventItem>, lunarYear: Int, lunarMonth: Int, lunarDay: Int, title: String) {
-        // Tìm ngày dương lịch tương ứng bằng cách dò qua các ngày trong khoảng thời gian
-        val approximateSolarMonth = when (lunarMonth) {
-            1 -> 2
-            12 -> 1
-            else -> lunarMonth + 1
-        }
-        val cal = Calendar.getInstance().apply {
-            set(lunarYear, (approximateSolarMonth - 2).coerceAtLeast(0), 1, 0, 0, 0)
-        }
-
-        // Quét trong 60 ngày để tìm chính xác ngày âm lịch tương ứng
-        for (i in 0..60) {
-            val d = cal.get(Calendar.DAY_OF_MONTH)
-            val m = cal.get(Calendar.MONTH) + 1
-            val y = cal.get(Calendar.YEAR)
-
-            val lunar = LunarCalendarConverter.convertSolarToLunar(d, m, y)
-            if (lunar.month == lunarMonth && lunar.day == lunarDay && !lunar.isLeap) {
-                val dateStr = String.format(Locale.getDefault(), "%02d-%02d", d, m)
-                list.add(
-                    WidgetEventItem(
-                        title = title,
-                        subtitle = "$dateStr All Day • Lịch Âm ($lunarDay/$lunarMonth ÂL)",
-                        timestamp = cal.timeInMillis
-                    )
-                )
-                break
+        try {
+            // Tìm ngày dương lịch tương ứng bằng cách dò qua các ngày trong khoảng thời gian
+            val approximateSolarMonth = when (lunarMonth) {
+                1 -> 2
+                12 -> 1
+                else -> lunarMonth + 1
             }
-            cal.add(Calendar.DAY_OF_MONTH, 1)
+            val cal = Calendar.getInstance().apply {
+                set(lunarYear, (approximateSolarMonth - 2).coerceAtLeast(0), 1, 0, 0, 0)
+            }
+
+            // Quét trong 60 ngày để tìm chính xác ngày âm lịch tương ứng
+            for (i in 0..60) {
+                val d = cal.get(Calendar.DAY_OF_MONTH)
+                val m = cal.get(Calendar.MONTH) + 1
+                val y = cal.get(Calendar.YEAR)
+
+                val lunar = LunarCalendarConverter.convertSolarToLunar(d, m, y)
+                if (lunar.month == lunarMonth && lunar.day == lunarDay && !lunar.isLeap) {
+                    val dateStr = String.format(Locale.getDefault(), "%02d-%02d", d, m)
+                    list.add(
+                        WidgetEventItem(
+                            title = title,
+                            subtitle = "$dateStr All Day • Lịch Âm ($lunarDay/$lunarMonth ÂL)",
+                            timestamp = cal.timeInMillis
+                        )
+                    )
+                    break
+                }
+                cal.add(Calendar.DAY_OF_MONTH, 1)
+            }
+        } catch (e: Exception) {
+            // Bỏ qua nếu tính lịch âm lỗi cho ngày lễ cụ thể
+            e.printStackTrace()
         }
     }
 }

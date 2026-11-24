@@ -109,11 +109,20 @@ object LunarCalendarConverter {
 
     fun getTodayLunar(): LunarDate {
         val cal = Calendar.getInstance(TimeZone.getTimeZone("GMT+7"))
-        return convertSolarToLunar(
-            cal.get(Calendar.DAY_OF_MONTH),
-            cal.get(Calendar.MONTH) + 1,
-            cal.get(Calendar.YEAR)
-        )
+        val dd = cal.get(Calendar.DAY_OF_MONTH)
+        val mm = cal.get(Calendar.MONTH) + 1
+        val yy = cal.get(Calendar.YEAR)
+        return try {
+            convertSolarToLunar(dd, mm, yy)
+        } catch (e: Exception) {
+            // Fallback an toàn nếu thuật toán lỗi
+            LunarDate(
+                day = dd, month = mm, year = yy,
+                isLeap = false,
+                dayCanChi = "---", monthCanChi = "---", yearCanChi = "---",
+                solarTerm = "---"
+            )
+        }
     }
 
     private fun computeLunarMonthAndYear(dd: Int, mm: Int, yy: Int, jd: Int): Triple<Int, Boolean, Int> {

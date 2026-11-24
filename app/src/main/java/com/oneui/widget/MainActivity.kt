@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
+import android.util.Log
 import android.view.View
 import android.widget.SeekBar
 import android.widget.Toast
@@ -75,8 +76,12 @@ class MainActivity : AppCompatActivity() {
         prefs = WidgetPreferences(this)
 
         // Khởi tạo các dịch vụ nền
-        WidgetUpdateWorker.enqueuePeriodicWork(this)
-        com.oneui.widget.receiver.MidnightAlarmReceiver.scheduleMidnightAlarm(this)
+        try {
+            WidgetUpdateWorker.enqueuePeriodicWork(this)
+            com.oneui.widget.receiver.MidnightAlarmReceiver.scheduleMidnightAlarm(this)
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Lỗi khởi tạo dịch vụ nền", e)
+        }
 
         setupListeners()
         updateUIState()
@@ -201,108 +206,128 @@ class MainActivity : AppCompatActivity() {
      * Nạp dữ liệu hiển thị trực tiếp lên khung Preview Widget bên trong App
      */
     private fun loadPreviewData() {
-        val cal = Calendar.getInstance()
-        val hour = cal.get(Calendar.HOUR_OF_DAY)
-        val dayOfMonth = cal.get(Calendar.DAY_OF_MONTH)
-        val month = cal.get(Calendar.MONTH) + 1
-        val dayOfWeekInt = cal.get(Calendar.DAY_OF_WEEK)
-
-        val preview = binding.widgetPreviewLayout
-
-        // Lời chào & Ngày giờ
-        preview.tvGreeting.text = WeatherUtils.getGreetingByHour(hour)
-        preview.tvSolarMonth.text = "THÁNG $month"
-        preview.tvSolarDay.text = dayOfMonth.toString()
-        preview.tvDayOfWeek.text = when (dayOfWeekInt) {
-            Calendar.MONDAY -> "Thứ Hai"
-            Calendar.TUESDAY -> "Thứ Ba"
-            Calendar.WEDNESDAY -> "Thứ Tư"
-            Calendar.THURSDAY -> "Thứ Năm"
-            Calendar.FRIDAY -> "Thứ Sáu"
-            Calendar.SATURDAY -> "Thứ Bảy"
-            Calendar.SUNDAY -> "Chủ Nhật"
-            else -> "Thứ Hai"
-        }
-
-        // Lịch âm Can Chi
-        val lunar = LunarCalendarConverter.getTodayLunar()
-        preview.tvLunarBadge.text = lunar.pillText
-
-        // Lưới lịch tháng
         try {
-            val bitmap = CalendarGridRenderer.renderCalendarBitmap(this, 440, 310)
-            preview.imgCalendarGrid.setImageBitmap(bitmap)
+            val cal = Calendar.getInstance()
+            val hour = cal.get(Calendar.HOUR_OF_DAY)
+            val dayOfMonth = cal.get(Calendar.DAY_OF_MONTH)
+            val month = cal.get(Calendar.MONTH) + 1
+            val dayOfWeekInt = cal.get(Calendar.DAY_OF_WEEK)
+
+            val preview = binding.widgetPreviewLayout
+
+            // Lời chào & Ngày giờ
+            preview.tvGreeting.text = WeatherUtils.getGreetingByHour(hour)
+            preview.tvSolarMonth.text = "THÁNG $month"
+            preview.tvSolarDay.text = dayOfMonth.toString()
+            preview.tvDayOfWeek.text = when (dayOfWeekInt) {
+                Calendar.MONDAY -> "Thứ Hai"
+                Calendar.TUESDAY -> "Thứ Ba"
+                Calendar.WEDNESDAY -> "Thứ Tư"
+                Calendar.THURSDAY -> "Thứ Năm"
+                Calendar.FRIDAY -> "Thứ Sáu"
+                Calendar.SATURDAY -> "Thứ Bảy"
+                Calendar.SUNDAY -> "Chủ Nhật"
+                else -> "Thứ Hai"
+            }
+
+            // Lịch âm Can Chi
+            try {
+                val lunar = LunarCalendarConverter.getTodayLunar()
+                preview.tvLunarBadge.text = lunar.pillText
+            } catch (e: Exception) {
+                preview.tvLunarBadge.text = "$dayOfMonth/$month ÂL"
+            }
+
+            // Lưới lịch tháng
+            try {
+                val bitmap = CalendarGridRenderer.renderCalendarBitmap(this)
+                preview.imgCalendarGrid.setImageBitmap(bitmap)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+            // Sự kiện & Ngày lễ
+            try {
+                val eventHelper = CalendarEventHelper(this)
+                val events = eventHelper.getUpcomingEvents(2)
+                if (events.isNotEmpty()) {
+                    preview.tvEvent1Title.text = events[0].title
+                    preview.tvEvent1Subtitle.text = events[0].subtitle
+                }
+                if (events.size > 1) {
+                    preview.tvEvent2Title.text = events[1].title
+                    preview.tvEvent2Subtitle.text = events[1].subtitle
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+            // Thời tiết nhanh từ cache/mặc định trước
+            val weatherRepo = WeatherRepository(this)
+            val initWeather = weatherRepo.getCachedOrDefaultWeather()
+            bindWeatherToPreview(initWeather)
+
+            // Sau đó gọi mạng ngầm nạp thời tiết mới
+            lifecycleScope.launch {
+                try {
+                    val freshWeather = withContext(Dispatchers.IO) { weatherRepo.getWeatherData() }
+                    bindWeatherToPreview(freshWeather)
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Lỗi tải thời tiết", e)
+                }
+            }
         } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-        // Sự kiện & Ngày lễ
-        val eventHelper = CalendarEventHelper(this)
-        val events = eventHelper.getUpcomingEvents(2)
-        if (events.isNotEmpty()) {
-            preview.tvEvent1Title.text = events[0].title
-            preview.tvEvent1Subtitle.text = events[0].subtitle
-        }
-        if (events.size > 1) {
-            preview.tvEvent2Title.text = events[1].title
-            preview.tvEvent2Subtitle.text = events[1].subtitle
-        }
-
-        // Thời tiết nhanh từ cache/mặc định trước
-        val weatherRepo = WeatherRepository(this)
-        val initWeather = weatherRepo.getCachedOrDefaultWeather()
-        bindWeatherToPreview(initWeather)
-
-        // Sau đó gọi mạng ngầm nạp thời tiết mới
-        lifecycleScope.launch {
-            val freshWeather = withContext(Dispatchers.IO) { weatherRepo.getWeatherData() }
-            bindWeatherToPreview(freshWeather)
+            Log.e("MainActivity", "Lỗi loadPreviewData", e)
         }
     }
 
     private fun bindWeatherToPreview(weather: com.oneui.widget.data.WidgetWeatherData) {
-        val preview = binding.widgetPreviewLayout
-        preview.tvMainTemp.text = "${weather.current.temp}°"
-        preview.tvWeatherDesc.text = weather.current.conditionDescription
-        preview.tvLocationName.text = weather.current.locationName
-        preview.tvSunriseInfo.text = "${weather.current.minTempToday}°C"
-        preview.tvSunsetInfo.text = "${weather.current.maxTempToday}°C"
+        try {
+            val preview = binding.widgetPreviewLayout
+            preview.tvMainTemp.text = "${weather.current.temp}°"
+            preview.tvWeatherDesc.text = weather.current.conditionDescription
+            preview.tvLocationName.text = weather.current.locationName
+            preview.tvSunriseInfo.text = "${weather.current.minTempToday}°C"
+            preview.tvSunsetInfo.text = "${weather.current.maxTempToday}°C"
 
-        preview.ivBottomTodayIcon.setImageResource(WeatherUtils.getWeatherIcon(weather.current.weatherCode))
-        preview.tvBottomTodayTemp.text = "${weather.current.temp}°C"
-        preview.tvBottomTodayMinmax.text = "${weather.current.minTempToday}°  ${weather.current.maxTempToday}°"
+            preview.ivBottomTodayIcon.setImageResource(WeatherUtils.getWeatherIcon(weather.current.weatherCode))
+            preview.tvBottomTodayTemp.text = "${weather.current.temp}°C"
+            preview.tvBottomTodayMinmax.text = "${weather.current.minTempToday}°  ${weather.current.maxTempToday}°"
 
-        val f = weather.forecast6Days
-        if (f.size >= 6) {
-            preview.tvF1Day.text = f[0].dayOfWeek
-            preview.ivF1Icon.setImageResource(f[0].getWeatherIconRes())
-            preview.tvF1Min.text = "↓ ${f[0].minTemp}°"
-            preview.tvF1Max.text = "↑ ${f[0].maxTemp}°"
+            val f = weather.forecast6Days
+            if (f.size >= 6) {
+                preview.tvF1Day.text = f[0].dayOfWeek
+                preview.ivF1Icon.setImageResource(f[0].getWeatherIconRes())
+                preview.tvF1Min.text = "↓ ${f[0].minTemp}°"
+                preview.tvF1Max.text = "↑ ${f[0].maxTemp}°"
 
-            preview.tvF2Day.text = f[1].dayOfWeek
-            preview.ivF2Icon.setImageResource(f[1].getWeatherIconRes())
-            preview.tvF2Min.text = "↓ ${f[1].minTemp}°"
-            preview.tvF2Max.text = "↑ ${f[1].maxTemp}°"
+                preview.tvF2Day.text = f[1].dayOfWeek
+                preview.ivF2Icon.setImageResource(f[1].getWeatherIconRes())
+                preview.tvF2Min.text = "↓ ${f[1].minTemp}°"
+                preview.tvF2Max.text = "↑ ${f[1].maxTemp}°"
 
-            preview.tvF3Day.text = f[2].dayOfWeek
-            preview.ivF3Icon.setImageResource(f[2].getWeatherIconRes())
-            preview.tvF3Min.text = "↓ ${f[2].minTemp}°"
-            preview.tvF3Max.text = "↑ ${f[2].maxTemp}°"
+                preview.tvF3Day.text = f[2].dayOfWeek
+                preview.ivF3Icon.setImageResource(f[2].getWeatherIconRes())
+                preview.tvF3Min.text = "↓ ${f[2].minTemp}°"
+                preview.tvF3Max.text = "↑ ${f[2].maxTemp}°"
 
-            preview.tvF4Day.text = f[3].dayOfWeek
-            preview.ivF4Icon.setImageResource(f[3].getWeatherIconRes())
-            preview.tvF4Min.text = "↓ ${f[3].minTemp}°"
-            preview.tvF4Max.text = "↑ ${f[3].maxTemp}°"
+                preview.tvF4Day.text = f[3].dayOfWeek
+                preview.ivF4Icon.setImageResource(f[3].getWeatherIconRes())
+                preview.tvF4Min.text = "↓ ${f[3].minTemp}°"
+                preview.tvF4Max.text = "↑ ${f[3].maxTemp}°"
 
-            preview.tvF5Day.text = f[4].dayOfWeek
-            preview.ivF5Icon.setImageResource(f[4].getWeatherIconRes())
-            preview.tvF5Min.text = "↓ ${f[4].minTemp}°"
-            preview.tvF5Max.text = "↑ ${f[4].maxTemp}°"
+                preview.tvF5Day.text = f[4].dayOfWeek
+                preview.ivF5Icon.setImageResource(f[4].getWeatherIconRes())
+                preview.tvF5Min.text = "↓ ${f[4].minTemp}°"
+                preview.tvF5Max.text = "↑ ${f[4].maxTemp}°"
 
-            preview.tvF6Day.text = f[5].dayOfWeek
-            preview.ivF6Icon.setImageResource(f[5].getWeatherIconRes())
-            preview.tvF6Min.text = "↓ ${f[5].minTemp}°"
-            preview.tvF6Max.text = "↑ ${f[5].maxTemp}°"
+                preview.tvF6Day.text = f[5].dayOfWeek
+                preview.ivF6Icon.setImageResource(f[5].getWeatherIconRes())
+                preview.tvF6Min.text = "↓ ${f[5].minTemp}°"
+                preview.tvF6Max.text = "↑ ${f[5].maxTemp}°"
+            }
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Lỗi bindWeatherToPreview", e)
         }
     }
 
@@ -326,24 +351,30 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun pinWidgetToHomeScreen() {
-        val appWidgetManager = getSystemService(AppWidgetManager::class.java)
-        val provider = ComponentName(this, OneUIWidgetProvider::class.java)
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val appWidgetManager = getSystemService(AppWidgetManager::class.java)
+            val provider = ComponentName(this, OneUIWidgetProvider::class.java)
+
             if (appWidgetManager != null && appWidgetManager.isRequestPinAppWidgetSupported) {
                 val successCallback = PendingIntent.getBroadcast(
                     this,
                     3001,
-                    Intent(this, OneUIWidgetProvider::class.java),
+                    Intent(this, OneUIWidgetProvider::class.java).apply {
+                        action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                    },
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
-                appWidgetManager.requestPinAppWidget(provider, null, successCallback)
-                Toast.makeText(this, "Đã gửi yêu cầu thêm Widget vào màn hình chính!", Toast.LENGTH_SHORT).show()
+                val result = appWidgetManager.requestPinAppWidget(provider, null, successCallback)
+                if (result) {
+                    Toast.makeText(this, "Đã gửi yêu cầu thêm Widget vào màn hình chính!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Launcher không hỗ trợ ghim tiện ích. Hãy nhấn giữ màn hình chính → Tiện ích.", Toast.LENGTH_LONG).show()
+                }
             } else {
-                Toast.makeText(this, "Vui lòng nhấn giữ trên màn hình chính và chọn Widget.", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Vui lòng nhấn giữ trên màn hình chính → Tiện ích → One UI Widget.", Toast.LENGTH_LONG).show()
             }
         } else {
-            Toast.makeText(this, "Vui lòng nhấn giữ trên màn hình chính và chọn Widget.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Vui lòng nhấn giữ trên màn hình chính → Tiện ích → One UI Widget.", Toast.LENGTH_LONG).show()
         }
     }
 }
