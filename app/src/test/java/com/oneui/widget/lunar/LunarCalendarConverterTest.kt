@@ -17,6 +17,8 @@ class LunarCalendarConverterTest {
         assertTrue(lunar.month in 1..12)
         assertEquals(2026, lunar.year)
         assertTrue(lunar.pillText.isNotEmpty())
+        assertTrue(lunar.dayMonthText.isNotEmpty())
+        assertTrue(lunar.canChiText.isNotEmpty())
         assertTrue(lunar.dayCanChi.isNotEmpty())
         assertTrue(lunar.yearCanChi.isNotEmpty())
     }

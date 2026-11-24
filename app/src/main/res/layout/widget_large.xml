@@ -5,7 +5,10 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_widget_container"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:paddingStart="18dp"
+    android:paddingTop="16dp"
+    android:paddingEnd="18dp"
+    android:paddingBottom="14dp">
 
     <!-- PHẦN 1: HÀNG TRÊN CÙNG (KHU VỰC 1: THỜI TIẾT HIỆN TẠI & KHU VỰC 2: NGÀY THÁNG LỊCH DƯƠNG/ÂM) -->
     <LinearLayout
@@ -19,7 +22,7 @@
             android:id="@+id/area_weather_current"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1.1"
+            android:layout_weight="1.0"
             android:orientation="vertical">
 
             <!-- Lời chào tự động theo giờ -->
@@ -27,33 +30,33 @@
                 android:id="@+id/tv_greeting"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
                 android:text="Chào buổi sáng"
                 android:textColor="@color/white_90"
-                android:textSize="15sp"
-                android:fontFamily="sans-serif-medium" />
+                android:textSize="14sp" />
 
             <!-- Nhiệt độ chính cỡ lớn, thanh mảnh -->
             <TextView
                 android:id="@+id/tv_main_temp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="28°"
-                android:textColor="@color/white"
-                android:textSize="44sp"
                 android:fontFamily="sans-serif-light"
+                android:includeFontPadding="false"
                 android:shadowColor="#40000000"
                 android:shadowDx="1"
                 android:shadowDy="2"
                 android:shadowRadius="3"
-                android:includeFontPadding="false" />
+                android:text="28°"
+                android:textColor="@color/white"
+                android:textSize="48sp" />
 
             <!-- Mô tả thời tiết & vị trí (P. Thạnh Mỹ Tây) -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
                 android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:layout_marginTop="2dp">
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/tv_weather_desc"
@@ -61,38 +64,38 @@
                     android:layout_height="wrap_content"
                     android:text="Có mây rải rác"
                     android:textColor="@color/white_90"
-                    android:textSize="13sp" />
+                    android:textSize="12.5sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="  •  "
                     android:textColor="@color/white_50"
-                    android:textSize="12sp" />
+                    android:textSize="11sp" />
 
                 <ImageView
                     android:layout_width="12dp"
                     android:layout_height="12dp"
-                    android:src="@drawable/ic_location_pin"
-                    android:contentDescription="Vị trí" />
+                    android:contentDescription="Vị trí"
+                    android:src="@drawable/ic_location_pin" />
 
                 <TextView
                     android:id="@+id/tv_location_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="3dp"
+                    android:fontFamily="sans-serif-medium"
                     android:text="P. Thạnh Mỹ Tây"
                     android:textColor="@color/white_90"
-                    android:textSize="13sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:textSize="12.5sp" />
             </LinearLayout>
 
             <!-- 2 Pill Badge viền trắng mảnh: Bình minh / Hoàng hôn & nhiệt độ -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -105,26 +108,26 @@
                     android:paddingBottom="3dp">
 
                     <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:src="@drawable/ic_sunrise"
-                        android:contentDescription="Sunrise" />
+                        android:layout_width="13dp"
+                        android:layout_height="13dp"
+                        android:contentDescription="Sunrise"
+                        android:src="@drawable/ic_sunrise" />
 
                     <TextView
                         android:id="@+id/tv_sunrise_info"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
+                        android:fontFamily="sans-serif-medium"
                         android:text="28°C"
                         android:textColor="@color/white"
-                        android:textSize="11sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:textSize="11sp" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="6dp"
                     android:background="@drawable/bg_pill_outline"
                     android:gravity="center_vertical"
                     android:paddingStart="8dp"
@@ -133,20 +136,20 @@
                     android:paddingBottom="3dp">
 
                     <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:src="@drawable/ic_sunset"
-                        android:contentDescription="Sunset" />
+                        android:layout_width="13dp"
+                        android:layout_height="13dp"
+                        android:contentDescription="Sunset"
+                        android:src="@drawable/ic_sunset" />
 
                     <TextView
                         android:id="@+id/tv_sunset_info"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
+                        android:fontFamily="sans-serif-medium"
                         android:text="27°C"
                         android:textColor="@color/white"
-                        android:textSize="11sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:textSize="11sp" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
@@ -156,89 +159,105 @@
             android:id="@+id/area_calendar_header"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.9"
+            android:layout_weight="1.0"
             android:gravity="end"
             android:orientation="vertical">
 
-            <!-- Hàng nút làm mới & Tháng Dương lịch in hoa -->
-            <LinearLayout
+            <!-- Tháng Dương lịch in hoa -->
+            <TextView
+                android:id="@+id/tv_solar_month"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:fontFamily="sans-serif-bold"
+                android:letterSpacing="0.08"
+                android:text="THÁNG 11"
+                android:textColor="@color/white_90"
+                android:textSize="13.5sp" />
 
-                <ImageView
-                    android:id="@+id/btn_refresh_widget"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_marginEnd="8dp"
-                    android:src="@drawable/ic_refresh"
-                    android:contentDescription="Làm mới" />
-
-                <TextView
-                    android:id="@+id/tv_solar_month"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="THÁNG 11"
-                    android:textColor="@color/white_90"
-                    android:textSize="14sp"
-                    android:letterSpacing="0.05"
-                    android:fontFamily="sans-serif-medium" />
-            </LinearLayout>
-
-            <!-- Số ngày cực lớn (23) -->
+            <!-- Số ngày cực lớn nổi bật như mẫu -->
             <TextView
                 android:id="@+id/tv_solar_day"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="23"
-                android:textColor="@color/white"
-                android:textSize="58sp"
                 android:fontFamily="sans-serif-bold"
                 android:includeFontPadding="false"
                 android:shadowColor="#30000000"
                 android:shadowDx="0"
                 android:shadowDy="3"
-                android:shadowRadius="4" />
+                android:shadowRadius="5"
+                android:text="23"
+                android:textColor="@color/white"
+                android:textSize="70sp" />
 
             <!-- Thứ (Thứ Hai) -->
             <TextView
                 android:id="@+id/tv_day_of_week"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="-4dp"
+                android:fontFamily="sans-serif-medium"
+                android:includeFontPadding="false"
                 android:text="Thứ Hai"
                 android:textColor="@color/white"
-                android:textSize="16sp"
-                android:fontFamily="sans-serif-medium" />
+                android:textSize="15.5sp" />
 
-            <!-- Pill Badge nền trắng đặc, chữ đen đậm: Ngày/Tháng Âm + Can Chi (15/10 Bính Ngọ) -->
+            <!-- Pill Badge Lịch Âm 2 phần khớp 100% bản mẫu: [ 15/10  (Bính Ngọ) ] -->
             <LinearLayout
+                android:id="@+id/btn_refresh_widget"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:background="@drawable/bg_pill_white"
-                android:paddingStart="12dp"
-                android:paddingTop="3dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="3dp">
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_pill_outline"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="2dp">
 
                 <TextView
-                    android:id="@+id/tv_lunar_badge"
+                    android:id="@+id/tv_lunar_day_month"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="15/10 Bính Ngọ"
-                    android:textColor="@color/black"
-                    android:textSize="12sp"
-                    android:fontFamily="sans-serif-bold" />
+                    android:fontFamily="sans-serif-bold"
+                    android:paddingStart="7dp"
+                    android:paddingEnd="5dp"
+                    android:text="15/10"
+                    android:textColor="@color/white"
+                    android:textSize="11sp" />
+
+                <!-- Khung con nền trắng đặc chữ đen đậm cho Can Chi -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_pill_white"
+                    android:paddingStart="8dp"
+                    android:paddingTop="2dp"
+                    android:paddingEnd="8dp"
+                    android:paddingBottom="2dp">
+
+                    <TextView
+                        android:id="@+id/tv_lunar_canchi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="Bính Ngọ"
+                        android:textColor="@color/black"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <!-- Giữ ID cũ cho tính tương thích -->
+                <TextView
+                    android:id="@+id/tv_lunar_badge"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
-    <!-- ĐƯỜNG KẺ NGĂN CÁCH MỎNG GIỮA PHẦN TRÊN VÀ GIỮA -->
+    <!-- ĐƯỜNG KẺ PHÂN CÁCH MỎNG GIỮA PHẦN TRÊN VÀ GIỮA -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:background="@color/white_15" />
 
@@ -249,14 +268,14 @@
         android:baselineAligned="false"
         android:orientation="horizontal">
 
-        <!-- KHU VỰC 3: GIỮA BÊN TRÁI – SỰ KIỆN & NGÀY LỄ VIỆT NAM (DẠNG TIMELINE) -->
+        <!-- KHU VỰC 3: GIỮA BÊN TRÁI – SỰ KIỆN & NGÀY LỄ VIỆT NAM (DẠNG TIMELINE 3 DÒNG KHỚP ẢNH MẪU) -->
         <LinearLayout
             android:id="@+id/area_events_timeline"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
             android:orientation="vertical"
-            android:paddingEnd="10dp">
+            android:paddingEnd="8dp">
 
             <!-- Sự kiện 1 -->
             <LinearLayout
@@ -266,54 +285,71 @@
 
                 <!-- Cột timeline: chấm tròn + vạch kẻ dọc -->
                 <LinearLayout
-                    android:layout_width="16dp"
+                    android:layout_width="14dp"
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
                     android:orientation="vertical">
 
                     <FrameLayout
-                        android:layout_width="7dp"
-                        android:layout_height="7dp"
+                        android:layout_width="6dp"
+                        android:layout_height="6dp"
                         android:layout_marginTop="4dp"
                         android:background="@drawable/bg_timeline_dot" />
 
                     <FrameLayout
                         android:layout_width="1dp"
-                        android:layout_height="32dp"
+                        android:layout_height="40dp"
                         android:layout_marginTop="2dp"
                         android:background="@color/timeline_line" />
                 </LinearLayout>
 
-                <!-- Nội dung sự kiện 1 -->
+                <!-- Nội dung sự kiện 1: 3 dòng rõ ràng, không bao giờ bị cắt chữ -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:orientation="vertical"
-                    android:paddingBottom="10dp">
+                    android:paddingBottom="6dp">
 
                     <TextView
                         android:id="@+id/tv_event1_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Lễ Giáng sinh (Noel)"
-                        android:textColor="@color/white"
-                        android:textSize="13sp"
+                        android:ellipsize="end"
                         android:fontFamily="sans-serif-bold"
                         android:maxLines="1"
-                        android:ellipsize="end" />
+                        android:text="Lễ Giáng Sinh"
+                        android:textColor="@color/white"
+                        android:textSize="12.5sp" />
 
                     <TextView
-                        android:id="@+id/tv_event1_subtitle"
+                        android:id="@+id/tv_event1_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:text="25-12 All Day • Ngày lễ Việt Nam"
-                        android:textColor="@color/white_70"
-                        android:textSize="11sp"
-                        android:textStyle="italic"
+                        android:ellipsize="end"
                         android:maxLines="1"
-                        android:ellipsize="end" />
+                        android:text="25-12  All Day"
+                        android:textColor="@color/white_80"
+                        android:textSize="10.5sp"
+                        android:textStyle="italic" />
+
+                    <TextView
+                        android:id="@+id/tv_event1_source"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="Ngày lễ Việt Nam"
+                        android:textColor="@color/white_50"
+                        android:textSize="10sp" />
+
+                    <!-- Giữ ID cũ cho tính tương thích -->
+                    <TextView
+                        android:id="@+id/tv_event1_subtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:visibility="gone" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -324,14 +360,14 @@
                 android:orientation="horizontal">
 
                 <LinearLayout
-                    android:layout_width="16dp"
+                    android:layout_width="14dp"
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
                     android:orientation="vertical">
 
                     <FrameLayout
-                        android:layout_width="7dp"
-                        android:layout_height="7dp"
+                        android:layout_width="6dp"
+                        android:layout_height="6dp"
                         android:layout_marginTop="4dp"
                         android:background="@drawable/bg_timeline_dot" />
                 </LinearLayout>
@@ -346,44 +382,61 @@
                         android:id="@+id/tv_event2_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tết Dương lịch 2027"
-                        android:textColor="@color/white"
-                        android:textSize="13sp"
+                        android:ellipsize="end"
                         android:fontFamily="sans-serif-bold"
                         android:maxLines="1"
-                        android:ellipsize="end" />
+                        android:text="Tết Dương lịch"
+                        android:textColor="@color/white"
+                        android:textSize="12.5sp" />
 
                     <TextView
-                        android:id="@+id/tv_event2_subtitle"
+                        android:id="@+id/tv_event2_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:text="01-01 All Day • Ngày lễ Việt Nam"
-                        android:textColor="@color/white_70"
-                        android:textSize="11sp"
-                        android:textStyle="italic"
+                        android:ellipsize="end"
                         android:maxLines="1"
-                        android:ellipsize="end" />
+                        android:text="01-01  All Day"
+                        android:textColor="@color/white_80"
+                        android:textSize="10.5sp"
+                        android:textStyle="italic" />
+
+                    <TextView
+                        android:id="@+id/tv_event2_source"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="Ngày lễ Việt Nam"
+                        android:textColor="@color/white_50"
+                        android:textSize="10sp" />
+
+                    <!-- Giữ ID cũ cho tính tương thích -->
+                    <TextView
+                        android:id="@+id/tv_event2_subtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:visibility="gone" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 
-        <!-- KHU VỰC 4: GIỮA BÊN PHẢI – LƯỚI LỊCH THÁNG (CALENDAR GRID) -->
+        <!-- KHU VỰC 4: GIỮA BÊN PHẢI – LƯỚI LỊCH THÁNG (CALENDAR GRID CÂN ĐỐI, THOÁNG ĐẸP) -->
         <FrameLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1.0">
+            android:layout_weight="1.1">
 
             <ImageView
                 android:id="@+id/img_calendar_grid"
                 android:layout_width="match_parent"
-                android:layout_height="140dp"
-                android:scaleType="fitCenter"
-                android:contentDescription="Lịch tháng" />
+                android:layout_height="130dp"
+                android:contentDescription="Lịch tháng"
+                android:scaleType="fitCenter" />
         </FrameLayout>
     </LinearLayout>
 
-    <!-- ĐƯỜNG KẺ NGĂN CÁCH MỎNG GIỮA PHẦN GIỮA VÀ DƯỚI -->
+    <!-- ĐƯỜNG KẺ PHÂN CÁCH MỎNG GIỮA PHẦN GIỮA VÀ DƯỚI -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="1dp"
@@ -399,7 +452,7 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <!-- CỘT TRÁI NGOÀI CÙNG: ICON THỜI TIẾT THỰC TẾ + NHIỆT ĐỘ HIỆN TẠI & MIN/MAX HÔM NAY -->
+        <!-- CỘT TRÁI NGOÀI CÙNG: ICON THỜI TIẾT + NHIỆT ĐỘ HIỆN TẠI & MIN/MAX HÔM NAY -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -410,10 +463,10 @@
 
             <ImageView
                 android:id="@+id/iv_bottom_today_icon"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_weather_partly_cloudy"
-                android:contentDescription="Thời tiết hôm nay" />
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:contentDescription="Thời tiết hôm nay"
+                android:src="@drawable/ic_weather_partly_cloudy" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -425,10 +478,10 @@
                     android:id="@+id/tv_bottom_today_temp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-bold"
                     android:text="32°C"
                     android:textColor="@color/white"
-                    android:textSize="15sp"
-                    android:fontFamily="sans-serif-bold" />
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/tv_bottom_today_minmax"
@@ -436,14 +489,14 @@
                     android:layout_height="wrap_content"
                     android:text="27°  28°"
                     android:textColor="@color/white_70"
-                    android:textSize="11sp" />
+                    android:textSize="10.5sp" />
             </LinearLayout>
         </LinearLayout>
 
         <!-- ĐƯỜNG PHÂN CÁCH DỌC MỎNG -->
         <FrameLayout
             android:layout_width="1dp"
-            android:layout_height="36dp"
+            android:layout_height="34dp"
             android:layout_marginEnd="6dp"
             android:background="@color/white_15" />
 
@@ -466,18 +519,18 @@
                     android:id="@+id/tv_f1_day"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-bold"
                     android:text="THỨ 3"
                     android:textColor="@color/forecast_gold"
-                    android:textSize="10sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:textSize="10sp" />
 
                 <ImageView
                     android:id="@+id/iv_f1_icon"
                     android:layout_width="18dp"
                     android:layout_height="18dp"
-                    android:layout_marginTop="2dp"
-                    android:src="@drawable/ic_weather_partly_cloudy"
-                    android:contentDescription="icon" />
+                    android:layout_marginTop="3dp"
+                    android:contentDescription="icon"
+                    android:src="@drawable/ic_weather_partly_cloudy" />
 
                 <TextView
                     android:id="@+id/tv_f1_min"
@@ -485,16 +538,16 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="↓ 25°"
-                    android:textColor="@color/temp_low_blue"
-                    android:textSize="10sp" />
+                    android:textColor="@color/white_80"
+                    android:textSize="9.5sp" />
 
                 <TextView
                     android:id="@+id/tv_f1_max"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="↑ 33°"
-                    android:textColor="@color/temp_high_orange"
-                    android:textSize="10sp" />
+                    android:textColor="@color/white_80"
+                    android:textSize="9.5sp" />
             </LinearLayout>
 
             <!-- Ngày 2 -->
@@ -509,18 +562,18 @@
                     android:id="@+id/tv_f2_day"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-bold"
                     android:text="THỨ 4"
                     android:textColor="@color/forecast_gold"
-                    android:textSize="10sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:textSize="10sp" />
 
                 <ImageView
                     android:id="@+id/iv_f2_icon"
                     android:layout_width="18dp"
                     android:layout_height="18dp"
-                    android:layout_marginTop="2dp"
-                    android:src="@drawable/ic_weather_sunny"
-                    android:contentDescription="icon" />
+                    android:layout_marginTop="3dp"
+                    android:contentDescription="icon"
+                    android:src="@drawable/ic_weather_sunny" />
 
                 <TextView
                     android:id="@+id/tv_f2_min"
@@ -528,16 +581,16 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="↓ 26°"
-                    android:textColor="@color/temp_low_blue"
-                    android:textSize="10sp" />
+                    android:textColor="@color/white_80"
+                    android:textSize="9.5sp" />
 
                 <TextView
                     android:id="@+id/tv_f2_max"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="↑ 34°"
-                    android:textColor="@color/temp_high_orange"
-                    android:textSize="10sp" />
+                    android:textColor="@color/white_80"
+                    android:textSize="9.5sp" />
             </LinearLayout>
 
             <!-- Ngày 3 -->
@@ -552,18 +605,18 @@
                     android:id="@+id/tv_f3_day"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-bold"
                     android:text="THỨ 5"
                     android:textColor="@color/forecast_gold"
-                    android:textSize="10sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:textSize="10sp" />
 
                 <ImageView
                     android:id="@+id/iv_f3_icon"
                     android:layout_width="18dp"
                     android:layout_height="18dp"
-                    android:layout_marginTop="2dp"
-                    android:src="@drawable/ic_weather_rain"
-                    android:contentDescription="icon" />
+                    android:layout_marginTop="3dp"
+                    android:contentDescription="icon"
+                    android:src="@drawable/ic_weather_rain" />
 
                 <TextView
                     android:id="@+id/tv_f3_min"
@@ -571,16 +624,16 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="↓ 25°"
-                    android:textColor="@color/temp_low_blue"
-                    android:textSize="10sp" />
+                    android:textColor="@color/white_80"
+                    android:textSize="9.5sp" />
 
                 <TextView
                     android:id="@+id/tv_f3_max"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="↑ 32°"
-                    android:textColor="@color/temp_high_orange"
-                    android:textSize="10sp" />
+                    android:textColor="@color/white_80"
+                    android:textSize="9.5sp" />
             </LinearLayout>
 
             <!-- Ngày 4 -->
@@ -595,18 +648,18 @@
                     android:id="@+id/tv_f4_day"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-bold"
                     android:text="THỨ 6"
                     android:textColor="@color/forecast_gold"
-                    android:textSize="10sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:textSize="10sp" />
 
                 <ImageView
                     android:id="@+id/iv_f4_icon"
                     android:layout_width="18dp"
                     android:layout_height="18dp"
-                    android:layout_marginTop="2dp"
-                    android:src="@drawable/ic_weather_partly_cloudy"
-                    android:contentDescription="icon" />
+                    android:layout_marginTop="3dp"
+                    android:contentDescription="icon"
+                    android:src="@drawable/ic_weather_partly_cloudy" />
 
                 <TextView
                     android:id="@+id/tv_f4_min"
@@ -614,16 +667,16 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="↓ 24°"
-                    android:textColor="@color/temp_low_blue"
-                    android:textSize="10sp" />
+                    android:textColor="@color/white_80"
+                    android:textSize="9.5sp" />
 
                 <TextView
                     android:id="@+id/tv_f4_max"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="↑ 33°"
-                    android:textColor="@color/temp_high_orange"
-                    android:textSize="10sp" />
+                    android:textColor="@color/white_80"
+                    android:textSize="9.5sp" />
             </LinearLayout>
 
             <!-- Ngày 5 -->
@@ -638,18 +691,18 @@
                     android:id="@+id/tv_f5_day"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-bold"
                     android:text="THỨ 7"
                     android:textColor="@color/forecast_gold"
-                    android:textSize="10sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:textSize="10sp" />
 
                 <ImageView
                     android:id="@+id/iv_f5_icon"
                     android:layout_width="18dp"
                     android:layout_height="18dp"
-                    android:layout_marginTop="2dp"
-                    android:src="@drawable/ic_weather_thunder"
-                    android:contentDescription="icon" />
+                    android:layout_marginTop="3dp"
+                    android:contentDescription="icon"
+                    android:src="@drawable/ic_weather_thunder" />
 
                 <TextView
                     android:id="@+id/tv_f5_min"
@@ -657,16 +710,16 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="↓ 25°"
-                    android:textColor="@color/temp_low_blue"
-                    android:textSize="10sp" />
+                    android:textColor="@color/white_80"
+                    android:textSize="9.5sp" />
 
                 <TextView
                     android:id="@+id/tv_f5_max"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="↑ 31°"
-                    android:textColor="@color/temp_high_orange"
-                    android:textSize="10sp" />
+                    android:textColor="@color/white_80"
+                    android:textSize="9.5sp" />
             </LinearLayout>
 
             <!-- Ngày 6 (Chủ Nhật) -->
@@ -681,35 +734,35 @@
                     android:id="@+id/tv_f6_day"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-bold"
                     android:text="CN"
-                    android:textColor="@color/red_sunday"
-                    android:textSize="10sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:textColor="@color/forecast_gold"
+                    android:textSize="10sp" />
 
                 <ImageView
                     android:id="@+id/iv_f6_icon"
                     android:layout_width="18dp"
                     android:layout_height="18dp"
-                    android:layout_marginTop="2dp"
-                    android:src="@drawable/ic_weather_sunny"
-                    android:contentDescription="icon" />
+                    android:layout_marginTop="3dp"
+                    android:contentDescription="icon"
+                    android:src="@drawable/ic_weather_sunny" />
 
                 <TextView
                     android:id="@+id/tv_f6_min"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="↓ 26°"
-                    android:textColor="@color/temp_low_blue"
-                    android:textSize="10sp" />
+                    android:text="↓ 25°"
+                    android:textColor="@color/white_80"
+                    android:textSize="9.5sp" />
 
                 <TextView
                     android:id="@+id/tv_f6_max"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="↑ 35°"
-                    android:textColor="@color/temp_high_orange"
-                    android:textSize="10sp" />
+                    android:text="↑ 27°"
+                    android:textColor="@color/white_80"
+                    android:textSize="9.5sp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

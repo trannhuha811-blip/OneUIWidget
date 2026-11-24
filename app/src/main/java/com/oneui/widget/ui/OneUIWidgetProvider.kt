@@ -148,45 +148,50 @@ class OneUIWidgetProvider : AppWidgetProvider() {
             }
             views.setTextViewText(R.id.tv_day_of_week, dayOfWeekStr)
 
-            // Khung bo tròn nền trắng đặc, chữ đen đậm: Ngày/Tháng Âm lịch + Can Chi
+            // Khung bo tròn viền trắng + badge trắng Can Chi khớp 100% bản mẫu
             try {
                 val lunarDate = LunarCalendarConverter.getTodayLunar()
-                views.setTextViewText(R.id.tv_lunar_badge, lunarDate.pillText)
+                views.setTextViewText(R.id.tv_lunar_day_month, lunarDate.dayMonthText)
+                views.setTextViewText(R.id.tv_lunar_canchi, lunarDate.canChiText)
             } catch (e: Exception) {
                 Log.e(TAG, "Lỗi tính lịch âm", e)
-                views.setTextViewText(R.id.tv_lunar_badge, "$dayOfMonth/$month ÂL")
+                views.setTextViewText(R.id.tv_lunar_day_month, "$dayOfMonth/$month")
+                views.setTextViewText(R.id.tv_lunar_canchi, "Âm lịch")
             }
 
             // ==========================================
-            // KHU VỰC 3: GIỮA BÊN TRÁI – SỰ KIỆN & NGÀY LỄ VIỆT NAM
+            // KHU VỰC 3: GIỮA BÊN TRÁI – SỰ KIỆN & NGÀY LỄ VIỆT NAM (DẠNG 3 DÒNG)
             // ==========================================
             if (upcomingEvents.isNotEmpty()) {
                 val ev1 = upcomingEvents[0]
                 views.setTextViewText(R.id.tv_event1_title, ev1.title)
-                views.setTextViewText(R.id.tv_event1_subtitle, ev1.subtitle)
+                views.setTextViewText(R.id.tv_event1_time, ev1.dateInfo)
+                views.setTextViewText(R.id.tv_event1_source, ev1.sourceInfo)
             } else {
-                views.setTextViewText(R.id.tv_event1_title, "Lễ Giáng sinh (Noel)")
-                views.setTextViewText(R.id.tv_event1_subtitle, "25-12 All Day • Ngày lễ Việt Nam")
+                views.setTextViewText(R.id.tv_event1_title, "Lễ Giáng Sinh")
+                views.setTextViewText(R.id.tv_event1_time, "25-12  All Day")
+                views.setTextViewText(R.id.tv_event1_source, "Ngày lễ Việt Nam")
             }
 
             if (upcomingEvents.size > 1) {
                 val ev2 = upcomingEvents[1]
                 views.setTextViewText(R.id.tv_event2_title, ev2.title)
-                views.setTextViewText(R.id.tv_event2_subtitle, ev2.subtitle)
+                views.setTextViewText(R.id.tv_event2_time, ev2.dateInfo)
+                views.setTextViewText(R.id.tv_event2_source, ev2.sourceInfo)
             } else {
                 views.setTextViewText(R.id.tv_event2_title, "Tết Dương lịch")
-                views.setTextViewText(R.id.tv_event2_subtitle, "01-01 All Day • Ngày lễ Việt Nam")
+                views.setTextViewText(R.id.tv_event2_time, "01-01  All Day")
+                views.setTextViewText(R.id.tv_event2_source, "Ngày lễ Việt Nam")
             }
 
             // ==========================================
-            // KHU VỰC 4: GIỮA BÊN PHẢI – LƯỚI LỊCH THÁNG (CALENDAR GRID)
+            // KHU VỰC 4: GIỮA BÊN PHẢI – LƯỚI LỊCH THÁNG (CALENDAR GRID CÂN ĐỐI)
             // ==========================================
             try {
-                val calendarBitmap = CalendarGridRenderer.renderCalendarBitmap(context)
+                val calendarBitmap = CalendarGridRenderer.renderCalendarBitmap(context, 420, 300)
                 views.setImageViewBitmap(R.id.img_calendar_grid, calendarBitmap)
             } catch (e: Exception) {
                 Log.e(TAG, "Lỗi vẽ lịch tháng", e)
-                // Bỏ qua, widget vẫn hiển thị bình thường không có bitmap
             }
 
             // ==========================================

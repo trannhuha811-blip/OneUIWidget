@@ -40,8 +40,14 @@ object LunarCalendarConverter {
         /**
          * Hiển thị dạng viên thuốc (Pill Badge) theo đúng ảnh mẫu: "15/10 Bính Ngọ"
          */
+        val dayMonthText: String
+            get() = "$day/$month${if (isLeap) " (N)" else ""}"
+
+        val canChiText: String
+            get() = dayCanChi
+
         val pillText: String
-            get() = "$day/$month${if (isLeap) " (Nhuận)" else ""} $dayCanChi"
+            get() = "$dayMonthText $canChiText"
 
         val shortDate: String
             get() = "$day/$month"

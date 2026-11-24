@@ -233,30 +233,34 @@ class MainActivity : AppCompatActivity() {
             // Lịch âm Can Chi
             try {
                 val lunar = LunarCalendarConverter.getTodayLunar()
-                preview.tvLunarBadge.text = lunar.pillText
+                preview.tvLunarDayMonth.text = lunar.dayMonthText
+                preview.tvLunarCanchi.text = lunar.canChiText
             } catch (e: Exception) {
-                preview.tvLunarBadge.text = "$dayOfMonth/$month ÂL"
+                preview.tvLunarDayMonth.text = "$dayOfMonth/$month"
+                preview.tvLunarCanchi.text = "ÂL"
             }
 
             // Lưới lịch tháng
             try {
-                val bitmap = CalendarGridRenderer.renderCalendarBitmap(this)
+                val bitmap = CalendarGridRenderer.renderCalendarBitmap(this, 420, 300)
                 preview.imgCalendarGrid.setImageBitmap(bitmap)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
 
-            // Sự kiện & Ngày lễ
+            // Sự kiện & Ngày lễ (3 dòng)
             try {
                 val eventHelper = CalendarEventHelper(this)
                 val events = eventHelper.getUpcomingEvents(2)
                 if (events.isNotEmpty()) {
                     preview.tvEvent1Title.text = events[0].title
-                    preview.tvEvent1Subtitle.text = events[0].subtitle
+                    preview.tvEvent1Time.text = events[0].dateInfo
+                    preview.tvEvent1Source.text = events[0].sourceInfo
                 }
                 if (events.size > 1) {
                     preview.tvEvent2Title.text = events[1].title
-                    preview.tvEvent2Subtitle.text = events[1].subtitle
+                    preview.tvEvent2Time.text = events[1].dateInfo
+                    preview.tvEvent2Source.text = events[1].sourceInfo
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

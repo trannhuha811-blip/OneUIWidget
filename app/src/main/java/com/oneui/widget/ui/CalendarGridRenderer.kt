@@ -5,53 +5,42 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Typeface
-import android.util.Log
 import java.util.Calendar
 
 object CalendarGridRenderer {
 
-    private const val TAG = "CalendarGrid"
     private const val RED_TODAY = 0xFFE53935.toInt()
     private const val RED_SUNDAY = 0xFFFF4D4D.toInt()
     private const val WHITE_MAIN = 0xFFFFFFFF.toInt()
     private const val WHITE_HEADER = 0xB3FFFFFF.toInt()
-    private const val DIMMED_WHITE = 0x59FFFFFF.toInt() // 35-40% alpha
-    private const val DIMMED_RED = 0x59FF4D4D.toInt()
+    private const val DIMMED_WHITE = 0x4DFFFFFF.toInt() // 30% alpha for other month
+    private const val DIMMED_RED = 0x4DFF4D4D.toInt()
 
     private val HEADERS = arrayOf("T2", "T3", "T4", "T5", "T6", "T7", "CN")
 
     /**
-     * Vẽ lưới lịch tháng sắc nét trả về Bitmap để gán vào ImageView của RemoteViews.
-     * Sử dụng kích thước cố định pixel (không phụ thuộc density) để tránh lỗi trong BroadcastReceiver context.
-     * Giảm bitmap xuống 350x250 để tránh TransactionTooLargeException qua IPC.
+     * Vẽ lưới lịch tháng sắc nét với tỷ lệ pixel cố định chuẩn,
+     * đảm bảo khoảng cách giữa các số đều, thoáng, không bao giờ bị dính hay đè lên nhau.
      */
-    fun renderCalendarBitmap(context: Context, widthPx: Int = 280, heightPx: Int = 200): Bitmap {
-        // Dùng density cố định = 2.0 thay vì đọc từ context (tránh crash trong widget receiver context)
-        val density = try {
-            val d = context.resources.displayMetrics.density
-            if (d > 0f) d else 2.0f
-        } catch (e: Exception) {
-            2.0f
-        }
-
+    fun renderCalendarBitmap(context: Context, widthPx: Int = 420, heightPx: Int = 300): Bitmap {
         val bitmap = Bitmap.createBitmap(widthPx, heightPx, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
 
         // Paint cho tiêu đề (T2..CN)
         val headerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            textSize = 10f * density
+            textSize = 20f
             textAlign = Paint.Align.CENTER
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+            typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
         }
 
-        // Paint cho ngày trong tháng
+        // Paint cho ngày thường
         val dayPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            textSize = 11f * density
+            textSize = 21f
             textAlign = Paint.Align.CENTER
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+            typeface = Typeface.create("sans-serif", Typeface.NORMAL)
         }
 
-        // Paint cho vòng tròn nổi bật ngày hôm nay (#E53935)
+        // Paint cho vòng tròn đỏ ngày hôm nay
         val todayCirclePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = RED_TODAY
             style = Paint.Style.FILL
@@ -60,19 +49,20 @@ object CalendarGridRenderer {
         // Paint chữ ngày hôm nay (In đậm, màu trắng)
         val todayTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = WHITE_MAIN
-            textSize = 11f * density
+            textSize = 21f
             textAlign = Paint.Align.CENTER
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            typeface = Typeface.create("sans-serif", Typeface.BOLD)
         }
 
         val colWidth = widthPx / 7f
-        val topPadding = 6f * density
-        val headerHeight = 15f * density
+        val topPadding = 12f
+        val headerHeight = 28f
         val availableHeight = heightPx - topPadding - headerHeight
         val rowHeight = availableHeight / 6f
+        val circleRadius = 17f
 
         // 1. Vẽ dòng tiêu đề thứ (T2 -> CN)
-        val headerBaseline = topPadding + (headerPaint.textSize * 0.8f)
+        val headerBaseline = topPadding + (headerPaint.textSize * 0.85f)
         for (i in 0 until 7) {
             val cx = colWidth * i + colWidth / 2f
             headerPaint.color = if (i == 6) RED_SUNDAY else WHITE_HEADER
@@ -89,9 +79,8 @@ object CalendarGridRenderer {
             set(currentYear, currentMonth, 1)
         }
 
-        // Thứ Hai là ngày đầu tuần. Trong Calendar: MONDAY=2, SUNDAY=1
+        // Thứ Hai là ngày đầu tuần. MONDAY=2, SUNDAY=1
         val firstDayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
-        // Offset: Thứ 2 = 0, Thứ 3 = 1, ..., CN = 6
         val offset = when (firstDayOfWeek) {
             Calendar.MONDAY -> 0
             Calendar.TUESDAY -> 1
@@ -111,13 +100,11 @@ object CalendarGridRenderer {
         val daysInPrevMonth = prevCal.get(Calendar.DAY_OF_MONTH)
         val daysInCurrentMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH)
 
-        val circleRadius = 11f * density
-
-        // Duyệt qua 6 hàng x 7 cột = 42 ô
+        // 3. Duyệt qua 6 hàng x 7 cột = 42 ô
         for (row in 0 until 6) {
             val cy = topPadding + headerHeight + row * rowHeight + (rowHeight / 2f)
             // Tính baseline cho text căn giữa theo chiều dọc
-            val textY = cy + (dayPaint.textSize / 3f)
+            val textY = cy + (dayPaint.textSize / 3f) - 1f
 
             for (col in 0 until 7) {
                 val index = row * 7 + col

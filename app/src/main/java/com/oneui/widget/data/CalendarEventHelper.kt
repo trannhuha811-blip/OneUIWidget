@@ -4,7 +4,6 @@ import android.content.ContentUris
 import android.content.Context
 import android.content.pm.PackageManager
 import android.database.Cursor
-import android.net.Uri
 import android.provider.CalendarContract
 import androidx.core.content.ContextCompat
 import com.oneui.widget.lunar.LunarCalendarConverter
@@ -14,9 +13,13 @@ import java.util.Locale
 
 data class WidgetEventItem(
     val title: String,
-    val subtitle: String, // e.g. "25-12 All Day • Ngày lễ Việt Nam"
+    val dateInfo: String,      // e.g. "25-12  All Day"
+    val sourceInfo: String,    // e.g. "Ngày lễ Việt Nam"
     val timestamp: Long
-)
+) {
+    val subtitle: String
+        get() = "$dateInfo • $sourceInfo"
+}
 
 class CalendarEventHelper(private val context: Context) {
 
@@ -102,9 +105,10 @@ class CalendarEventHelper(private val context: Context) {
 
                 val datePart = dateFormat.format(begin)
                 val timePart = if (isAllDay) "All Day" else timeFormat.format(begin)
-                val subtitle = "$datePart $timePart • $calName"
+                val dateInfo = "$datePart  $timePart"
+                val sourceInfo = if (calName.length > 18) calName.take(16) + "..." else calName
 
-                list.add(WidgetEventItem(title, subtitle, begin))
+                list.add(WidgetEventItem(title, dateInfo, sourceInfo, begin))
             }
         }
 
@@ -131,7 +135,7 @@ class CalendarEventHelper(private val context: Context) {
             addSolarHoliday(list, year, 10, 20, "Phụ nữ Việt Nam")
             addSolarHoliday(list, year, 11, 20, "Nhà giáo Việt Nam")
             addSolarHoliday(list, year, 12, 22, "Thành lập QĐND Việt Nam")
-            addSolarHoliday(list, year, 12, 25, "Lễ Giáng sinh (Noel)")
+            addSolarHoliday(list, year, 12, 25, "Lễ Giáng Sinh")
 
             // Ngày lễ Âm lịch (tính toán chuyển đổi sang Dương lịch)
             addLunarHoliday(list, year, 1, 1, "Mùng 1 Tết Nguyên Đán")
@@ -158,7 +162,8 @@ class CalendarEventHelper(private val context: Context) {
         list.add(
             WidgetEventItem(
                 title = title,
-                subtitle = "$dateStr All Day • Ngày lễ Việt Nam",
+                dateInfo = "$dateStr  All Day",
+                sourceInfo = "Ngày lễ Việt Nam",
                 timestamp = cal.timeInMillis
             )
         )
@@ -166,7 +171,6 @@ class CalendarEventHelper(private val context: Context) {
 
     private fun addLunarHoliday(list: MutableList<WidgetEventItem>, lunarYear: Int, lunarMonth: Int, lunarDay: Int, title: String) {
         try {
-            // Tìm ngày dương lịch tương ứng bằng cách dò qua các ngày trong khoảng thời gian
             val approximateSolarMonth = when (lunarMonth) {
                 1 -> 2
                 12 -> 1
@@ -176,7 +180,6 @@ class CalendarEventHelper(private val context: Context) {
                 set(lunarYear, (approximateSolarMonth - 2).coerceAtLeast(0), 1, 0, 0, 0)
             }
 
-            // Quét trong 60 ngày để tìm chính xác ngày âm lịch tương ứng
             for (i in 0..60) {
                 val d = cal.get(Calendar.DAY_OF_MONTH)
                 val m = cal.get(Calendar.MONTH) + 1
@@ -188,7 +191,8 @@ class CalendarEventHelper(private val context: Context) {
                     list.add(
                         WidgetEventItem(
                             title = title,
-                            subtitle = "$dateStr All Day • Lịch Âm ($lunarDay/$lunarMonth ÂL)",
+                            dateInfo = "$dateStr  All Day",
+                            sourceInfo = "Lịch Âm ($lunarDay/$lunarMonth ÂL)",
                             timestamp = cal.timeInMillis
                         )
                     )
@@ -197,7 +201,6 @@ class CalendarEventHelper(private val context: Context) {
                 cal.add(Calendar.DAY_OF_MONTH, 1)
             }
         } catch (e: Exception) {
-            // Bỏ qua nếu tính lịch âm lỗi cho ngày lễ cụ thể
             e.printStackTrace()
         }
     }
