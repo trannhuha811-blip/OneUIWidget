@@ -10,7 +10,7 @@
     android:paddingEnd="18dp"
     android:paddingBottom="14dp">
 
-    <!-- PHẦN 1: HÀNG TRÊN CÙNG (KHU VỰC 1: THỜI TIẾT HIỆN TẠI & KHU VỰC 2: NGÀY THÁNG LỊCH DƯƠNG/ÂM) -->
+    <!-- PHẦN 1: HÀNG TRÊN CÙNG (KHU VỰC 1: THỜI TIẾT, ĐÀN CHIM HẠC & KHU VỰC 2: NGÀY THÁNG LỊCH DƯƠNG/ÂM) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,7 +22,7 @@
             android:id="@+id/area_weather_current"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1.0"
+            android:layout_weight="1.1"
             android:orientation="vertical">
 
             <!-- Lời chào tự động theo giờ -->
@@ -33,45 +33,59 @@
                 android:fontFamily="sans-serif-medium"
                 android:text="Chào buổi sáng"
                 android:textColor="@color/white_90"
-                android:textSize="14sp" />
+                android:textSize="14.5sp" />
 
-            <!-- Nhiệt độ chính cỡ lớn, thanh mảnh -->
-            <TextView
-                android:id="@+id/tv_main_temp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-light"
-                android:includeFontPadding="false"
-                android:shadowColor="#40000000"
-                android:shadowDx="1"
-                android:shadowDy="2"
-                android:shadowRadius="3"
-                android:text="28°"
-                android:textColor="@color/white"
-                android:textSize="48sp" />
-
-            <!-- Mô tả thời tiết & vị trí (P. Thạnh Mỹ Tây) -->
+            <!-- Hàng nhiệt độ & đàn chim hạc bay lượn -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
+                <!-- Nhiệt độ chính cỡ lớn, thanh mảnh -->
                 <TextView
-                    android:id="@+id/tv_weather_desc"
+                    android:id="@+id/tv_main_temp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Có mây rải rác"
-                    android:textColor="@color/white_90"
-                    android:textSize="12.5sp" />
+                    android:fontFamily="sans-serif-light"
+                    android:includeFontPadding="false"
+                    android:shadowColor="#40000000"
+                    android:shadowDx="1"
+                    android:shadowDy="2"
+                    android:shadowRadius="3"
+                    android:text="28°"
+                    android:textColor="@color/white"
+                    android:textSize="48sp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="  •  "
-                    android:textColor="@color/white_50"
-                    android:textSize="11sp" />
+                <!-- ĐÀN CHIM HẠC TRẮNG BAY LƯỢN KHỚP 100% ẢNH MẪU -->
+                <ImageView
+                    android:id="@+id/iv_flying_cranes"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="Đàn chim hạc"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_flying_cranes" />
+            </LinearLayout>
+
+            <!-- Mô tả thời tiết ở trên: "Có mây rải rác" -->
+            <TextView
+                android:id="@+id/tv_weather_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:text="Có mây rải rác"
+                android:textColor="@color/white_90"
+                android:textSize="13sp" />
+
+            <!-- Định vị vị trí ở dưới: "📍 P. Thạnh Mỹ Tây" -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
                 <ImageView
                     android:layout_width="12dp"
@@ -86,7 +100,7 @@
                     android:layout_marginStart="3dp"
                     android:fontFamily="sans-serif-medium"
                     android:text="P. Thạnh Mỹ Tây"
-                    android:textColor="@color/white_90"
+                    android:textColor="@color/white_80"
                     android:textSize="12.5sp" />
             </LinearLayout>
 
@@ -154,12 +168,12 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- KHU VỰC 2: GÓC TRÊN BÊN PHẢI – LỊCH DƯƠNG & LỊCH ÂM VIỆT NAM -->
+        <!-- KHU VỰC 2: GÓC TRÊN BÊN PHẢI – LỊCH DƯƠNG & LỊCH ÂM VIỆT NAM (GRADIENT KHỚP MẪU) -->
         <LinearLayout
             android:id="@+id/area_calendar_header"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1.0"
+            android:layout_weight="0.9"
             android:gravity="end"
             android:orientation="vertical">
 
@@ -172,36 +186,37 @@
                 android:letterSpacing="0.08"
                 android:text="THÁNG 11"
                 android:textColor="@color/white_90"
-                android:textSize="13.5sp" />
+                android:textSize="14sp" />
 
-            <!-- Số ngày cực lớn nổi bật như mẫu -->
+            <!-- SỐ NGÀY CỰC LỚN VỚI GRADIENT MỜ DẦN Ở CHÂN SỐ NHƯ BẢN MẪU -->
+            <ImageView
+                android:id="@+id/img_solar_day"
+                android:layout_width="110dp"
+                android:layout_height="80dp"
+                android:layout_marginTop="-4dp"
+                android:contentDescription="Ngày trong tháng"
+                android:scaleType="fitEnd" />
+
+            <!-- Giữ TextView cũ cho tính tương thích/fallback -->
             <TextView
                 android:id="@+id/tv_solar_day"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-bold"
-                android:includeFontPadding="false"
-                android:shadowColor="#30000000"
-                android:shadowDx="0"
-                android:shadowDy="3"
-                android:shadowRadius="5"
-                android:text="23"
-                android:textColor="@color/white"
-                android:textSize="70sp" />
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
 
             <!-- Thứ (Thứ Hai) -->
             <TextView
                 android:id="@+id/tv_day_of_week"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="-4dp"
+                android:layout_marginTop="-2dp"
                 android:fontFamily="sans-serif-medium"
                 android:includeFontPadding="false"
                 android:text="Thứ Hai"
                 android:textColor="@color/white"
                 android:textSize="15.5sp" />
 
-            <!-- Pill Badge Lịch Âm 2 phần khớp 100% bản mẫu: [ 15/10  (Bính Ngọ) ] -->
+            <!-- Pill Badge Lịch Âm 2 phần: [ 15/10  (Bính Ngọ) ] -->
             <LinearLayout
                 android:id="@+id/btn_refresh_widget"
                 android:layout_width="wrap_content"
@@ -243,7 +258,6 @@
                         android:textSize="11sp" />
                 </LinearLayout>
 
-                <!-- Giữ ID cũ cho tính tương thích -->
                 <TextView
                     android:id="@+id/tv_lunar_badge"
                     android:layout_width="0dp"
@@ -268,7 +282,7 @@
         android:baselineAligned="false"
         android:orientation="horizontal">
 
-        <!-- KHU VỰC 3: GIỮA BÊN TRÁI – SỰ KIỆN & NGÀY LỄ VIỆT NAM (DẠNG TIMELINE 3 DÒNG KHỚP ẢNH MẪU) -->
+        <!-- KHU VỰC 3: GIỮA BÊN TRÁI – SỰ KIỆN & NGÀY LỄ VIỆT NAM (3 DÒNG KHỚP ẢNH MẪU) -->
         <LinearLayout
             android:id="@+id/area_events_timeline"
             android:layout_width="0dp"
@@ -344,7 +358,6 @@
                         android:textColor="@color/white_50"
                         android:textSize="10sp" />
 
-                    <!-- Giữ ID cũ cho tính tương thích -->
                     <TextView
                         android:id="@+id/tv_event1_subtitle"
                         android:layout_width="0dp"
@@ -411,7 +424,6 @@
                         android:textColor="@color/white_50"
                         android:textSize="10sp" />
 
-                    <!-- Giữ ID cũ cho tính tương thích -->
                     <TextView
                         android:id="@+id/tv_event2_subtitle"
                         android:layout_width="0dp"

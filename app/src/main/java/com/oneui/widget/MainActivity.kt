@@ -218,7 +218,12 @@ class MainActivity : AppCompatActivity() {
             // Lời chào & Ngày giờ
             preview.tvGreeting.text = WeatherUtils.getGreetingByHour(hour)
             preview.tvSolarMonth.text = "THÁNG $month"
-            preview.tvSolarDay.text = dayOfMonth.toString()
+            try {
+                val dayBitmap = CalendarGridRenderer.renderDayNumberBitmap(dayOfMonth)
+                preview.imgSolarDay.setImageBitmap(dayBitmap)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
             preview.tvDayOfWeek.text = when (dayOfWeekInt) {
                 Calendar.MONDAY -> "Thứ Hai"
                 Calendar.TUESDAY -> "Thứ Ba"

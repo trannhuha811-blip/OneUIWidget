@@ -3,7 +3,9 @@ package com.oneui.widget.ui
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.LinearGradient
 import android.graphics.Paint
+import android.graphics.Shader
 import android.graphics.Typeface
 import java.util.Calendar
 
@@ -17,6 +19,41 @@ object CalendarGridRenderer {
     private const val DIMMED_RED = 0x4DFF4D4D.toInt()
 
     private val HEADERS = arrayOf("T2", "T3", "T4", "T5", "T6", "T7", "CN")
+
+    /**
+     * Vẽ số ngày lớn với hiệu ứng Gradient chuyển màu từ trắng sáng ở đỉnh xuống mờ dần ở chân số
+     * Khớp 100% với ảnh mẫu thiết kế gốc của One UI.
+     */
+    fun renderDayNumberBitmap(day: Int, widthPx: Int = 220, heightPx: Int = 160): Bitmap {
+        val bitmap = Bitmap.createBitmap(widthPx, heightPx, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            textSize = 148f
+            textAlign = Paint.Align.CENTER
+            typeface = Typeface.create("sans-serif", Typeface.BOLD)
+
+            // Gradient: Trắng tinh ở trên -> chuyển mờ dần trong suốt 35% ở chân số
+            shader = LinearGradient(
+                0f, 10f, 0f, heightPx.toFloat(),
+                intArrayOf(
+                    0xFFFFFFFF.toInt(),
+                    0xEEFFFFFF.toInt(),
+                    0x99FFFFFF.toInt(),
+                    0x40FFFFFF.toInt()
+                ),
+                floatArrayOf(0f, 0.40f, 0.75f, 1f),
+                Shader.TileMode.CLAMP
+            )
+        }
+
+        val text = day.toString()
+        // Căn giữa theo chiều dọc
+        val textY = heightPx / 2f - (paint.descent() + paint.ascent()) / 2f
+        canvas.drawText(text, widthPx / 2f, textY, paint)
+
+        return bitmap
+    }
 
     /**
      * Vẽ lưới lịch tháng sắc nét với tỷ lệ pixel cố định chuẩn,
@@ -103,7 +140,6 @@ object CalendarGridRenderer {
         // 3. Duyệt qua 6 hàng x 7 cột = 42 ô
         for (row in 0 until 6) {
             val cy = topPadding + headerHeight + row * rowHeight + (rowHeight / 2f)
-            // Tính baseline cho text căn giữa theo chiều dọc
             val textY = cy + (dayPaint.textSize / 3f) - 1f
 
             for (col in 0 until 7) {

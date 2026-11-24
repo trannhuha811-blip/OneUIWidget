@@ -134,7 +134,12 @@ class OneUIWidgetProvider : AppWidgetProvider() {
             // KHU VỰC 2: GÓC TRÊN BÊN PHẢI – LỊCH DƯƠNG & LỊCH ÂM VIỆT NAM
             // ==========================================
             views.setTextViewText(R.id.tv_solar_month, "THÁNG $month")
-            views.setTextViewText(R.id.tv_solar_day, dayOfMonth.toString())
+            try {
+                val dayBitmap = CalendarGridRenderer.renderDayNumberBitmap(dayOfMonth)
+                views.setImageViewBitmap(R.id.img_solar_day, dayBitmap)
+            } catch (e: Exception) {
+                Log.e(TAG, "Lỗi vẽ số ngày", e)
+            }
 
             val dayOfWeekStr = when (dayOfWeekInt) {
                 Calendar.MONDAY -> "Thứ Hai"

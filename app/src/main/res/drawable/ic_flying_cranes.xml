@@ -1,0 +1,114 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="110dp"
+    android:height="65dp"
+    android:viewportWidth="110"
+    android:viewportHeight="65">
+
+    <!-- CHIM HẠC LỚN ĐẦU ĐÀN (BÊN PHẢI) -->
+    <!-- Đôi cánh & Lông đen phía sau cánh -->
+    <path
+        android:fillColor="#333333"
+        android:pathData="M85,25 C88,27 94,32 98,39 C95,38 90,36 84,33 C80,31 76,28 73,26 Z" />
+    <path
+        android:fillColor="#222222"
+        android:pathData="M92,34 L102,46 L95,44 L88,36 Z" />
+    <path
+        android:fillColor="#222222"
+        android:pathData="M88,38 L97,52 L91,48 L84,40 Z" />
+
+    <!-- Thân & Cánh trắng chính của chim hạc lớn -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M65,22 C72,15 80,10 88,6 C89,8 88,14 84,20 C81,25 78,30 74,34 C70,37 66,38 63,38 C60,38 57,36 55,33 C56,29 60,25 65,22 Z" />
+    <!-- Cánh phụ phía dưới -->
+    <path
+        android:fillColor="#F0F4F8"
+        android:pathData="M63,35 C68,40 75,47 82,53 C80,51 76,46 72,42 C68,39 65,37 63,35 Z" />
+
+    <!-- Cổ & Đầu chim vươn dài về phía trước -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M64,25 C62,23 58,21 54,20 C50,19 46,19 43,20 C42,20.5 44,22 47,22 C51,22 55,23 59,26 Z" />
+    <!-- Mỏ hạc -->
+    <path
+        android:fillColor="#E0A96D"
+        android:pathData="M43,20 L37,21 L43,22 Z" />
+    <!-- Đỉnh đầu đỏ (Hạc đầu đỏ) -->
+    <path
+        android:fillColor="#E53935"
+        android:pathData="M45,19.2 A1,1 0 1,1 46,19.8 Z" />
+
+    <!-- Chân hạc duỗi thẳng về sau -->
+    <path
+        android:fillColor="#555555"
+        android:strokeColor="#444444"
+        android:strokeWidth="0.8"
+        android:pathData="M78,33 L106,48 M77,35 L104,51" />
+
+
+    <!-- CHIM HẠC NHỎ 2 (BÊN CẠNH) -->
+    <path
+        android:fillColor="#333333"
+        android:pathData="M52,38 C54,40 58,44 60,48 C57,47 54,45 50,43 Z" />
+    <path
+        android:fillColor="#E6FFFFFF"
+        android:pathData="M40,35 C45,30 50,27 55,24 C54,28 51,33 47,38 C44,39 42,39 40,37 Z" />
+    <path
+        android:fillColor="#E6FFFFFF"
+        android:pathData="M40,36 C37,34 34,33 31,34 C33,35 36,36 39,37 Z" />
+    <path
+        android:fillColor="#D4A373"
+        android:pathData="M31,34 L27,34.5 L31,35 Z" />
+    <path
+        android:fillColor="#555555"
+        android:strokeColor="#444444"
+        android:strokeWidth="0.6"
+        android:pathData="M48,40 L64,49" />
+
+
+    <!-- CHIM HẠC NHỎ 3 (PHÍA DƯỚI) -->
+    <path
+        android:fillColor="#333333"
+        android:pathData="M42,50 C44,52 47,55 48,58 C46,57 43,55 41,53 Z" />
+    <path
+        android:fillColor="#D9FFFFFF"
+        android:pathData="M33,48 C37,44 41,41 45,39 C44,42 42,46 39,49 C37,50 35,50 33,49 Z" />
+    <path
+        android:fillColor="#D9FFFFFF"
+        android:pathData="M33,49 C31,47 28,46 26,47 C28,48 30,49 32,50 Z" />
+    <path
+        android:fillColor="#555555"
+        android:strokeColor="#444444"
+        android:strokeWidth="0.5"
+        android:pathData="M40,51 L52,58" />
+
+
+    <!-- CHIM HẠC NHỎ 4 (BAY XA PHÍA SAU) -->
+    <path
+        android:fillColor="#333333"
+        android:pathData="M24,46 C25,47 28,49 29,52 C27,51 25,50 23,48 Z" />
+    <path
+        android:fillColor="#B3FFFFFF"
+        android:pathData="M18,44 C21,41 24,39 27,37 C26,40 24,43 22,45 Z" />
+    <path
+        android:fillColor="#B3FFFFFF"
+        android:pathData="M18,45 C16,43 14,42 12,43 C14,44 16,45 17,46 Z" />
+    <path
+        android:fillColor="#555555"
+        android:strokeColor="#444444"
+        android:strokeWidth="0.5"
+        android:pathData="M23,47 L31,52" />
+
+
+    <!-- CHIM HẠC NHỎ 5 (XA NHẤT Ở ĐUÔI ĐÀN) -->
+    <path
+        android:fillColor="#333333"
+        android:pathData="M15,53 C16,54 18,56 19,58 C17,57 16,56 14,55 Z" />
+    <path
+        android:fillColor="#80FFFFFF"
+        android:pathData="M10,51 C12,49 14,47 16,46 C15,48 14,50 13,52 Z" />
+    <path
+        android:fillColor="#80FFFFFF"
+        android:pathData="M10,52 C8,50 6,49 5,50 C6,51 8,52 9,53 Z" />
+
+</vector>
