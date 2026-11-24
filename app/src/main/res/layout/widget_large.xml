@@ -235,7 +235,7 @@
     </LinearLayout>
 
     <!-- ĐƯỜNG KẺ NGĂN CÁCH MỎNG GIỮA PHẦN TRÊN VÀ GIỮA -->
-    <View
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="12dp"
@@ -271,13 +271,13 @@
                     android:gravity="center_horizontal"
                     android:orientation="vertical">
 
-                    <View
+                    <FrameLayout
                         android:layout_width="7dp"
                         android:layout_height="7dp"
                         android:layout_marginTop="4dp"
                         android:background="@drawable/bg_timeline_dot" />
 
-                    <View
+                    <FrameLayout
                         android:layout_width="1dp"
                         android:layout_height="32dp"
                         android:layout_marginTop="2dp"
@@ -329,7 +329,7 @@
                     android:gravity="center_horizontal"
                     android:orientation="vertical">
 
-                    <View
+                    <FrameLayout
                         android:layout_width="7dp"
                         android:layout_height="7dp"
                         android:layout_marginTop="4dp"
@@ -384,7 +384,7 @@
     </LinearLayout>
 
     <!-- ĐƯỜNG KẺ NGĂN CÁCH MỎNG GIỮA PHẦN GIỮA VÀ DƯỚI -->
-    <View
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="10dp"
@@ -441,7 +441,7 @@
         </LinearLayout>
 
         <!-- ĐƯỜNG PHÂN CÁCH DỌC MỎNG -->
-        <View
+        <FrameLayout
             android:layout_width="1dp"
             android:layout_height="36dp"
             android:layout_marginEnd="6dp"

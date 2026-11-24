@@ -25,7 +25,7 @@ object CalendarGridRenderer {
      * Sử dụng kích thước cố định pixel (không phụ thuộc density) để tránh lỗi trong BroadcastReceiver context.
      * Giảm bitmap xuống 350x250 để tránh TransactionTooLargeException qua IPC.
      */
-    fun renderCalendarBitmap(context: Context, widthPx: Int = 350, heightPx: Int = 250): Bitmap {
+    fun renderCalendarBitmap(context: Context, widthPx: Int = 280, heightPx: Int = 200): Bitmap {
         // Dùng density cố định = 2.0 thay vì đọc từ context (tránh crash trong widget receiver context)
         val density = try {
             val d = context.resources.displayMetrics.density
@@ -39,14 +39,14 @@ object CalendarGridRenderer {
 
         // Paint cho tiêu đề (T2..CN)
         val headerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            textSize = 11f * density
+            textSize = 10f * density
             textAlign = Paint.Align.CENTER
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
         }
 
         // Paint cho ngày trong tháng
         val dayPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            textSize = 12f * density
+            textSize = 11f * density
             textAlign = Paint.Align.CENTER
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
         }
@@ -60,14 +60,14 @@ object CalendarGridRenderer {
         // Paint chữ ngày hôm nay (In đậm, màu trắng)
         val todayTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = WHITE_MAIN
-            textSize = 12f * density
+            textSize = 11f * density
             textAlign = Paint.Align.CENTER
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         }
 
         val colWidth = widthPx / 7f
-        val topPadding = 8f * density
-        val headerHeight = 18f * density
+        val topPadding = 6f * density
+        val headerHeight = 15f * density
         val availableHeight = heightPx - topPadding - headerHeight
         val rowHeight = availableHeight / 6f
 

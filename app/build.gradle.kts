@@ -54,4 +54,5 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.okhttp)
+    testImplementation(libs.junit)
 }
