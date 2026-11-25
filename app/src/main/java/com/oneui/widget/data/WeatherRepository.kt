@@ -8,6 +8,7 @@ import android.location.Geocoder
 import android.location.Location
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -33,15 +34,16 @@ class WeatherRepository(private val context: Context) {
      * Lấy dữ liệu nhanh từ bộ nhớ cache hoặc mặc định (chạy ngay lập tức, không chờ mạng)
      */
     fun getCachedOrDefaultWeather(): WidgetWeatherData {
+        val displayLocation = prefs.cachedLocationName ?: prefs.fixedCityName
         val cached = prefs.cachedWeatherJson
         if (!cached.isNullOrEmpty()) {
             try {
-                return parseWeatherData(cached, prefs.fixedCityName)
+                return parseWeatherData(cached, displayLocation)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
-        return getFallbackWeatherData(prefs.fixedCityName)
+        return getFallbackWeatherData(displayLocation)
     }
 
     /**
@@ -87,36 +89,59 @@ class WeatherRepository(private val context: Context) {
     }
 
     private suspend fun determineCoordinatesAndName(): Triple<Double, Double, String> {
-        val hasPermission = ContextCompat.checkSelfPermission(
+        val hasFine = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        val hasCoarse = ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
 
-        if (!prefs.useAutoLocation || !hasPermission) {
+        if (!prefs.useAutoLocation || (!hasFine && !hasCoarse)) {
             return Triple(prefs.fixedLatitude, prefs.fixedLongitude, prefs.fixedCityName)
         }
 
-        // Giới hạn thời gian chờ vị trí tối đa 2.5 giây
-        val location = withTimeoutOrNull(2500L) {
-            getLastKnownLocation()
+        // Giới hạn thời gian chờ vị trí tối đa 4 giây (ưu tiên lastLocation, fallback getCurrentLocation)
+        val location = withTimeoutOrNull(4000L) {
+            getBestLocation(hasFine)
         }
 
         if (location != null) {
-            val geocodedName = getSubLocalityName(location.latitude, location.longitude)
-            val finalName = geocodedName ?: prefs.fixedCityName
+            val resolvedName = resolveLocationName(location.latitude, location.longitude)
+            if (!resolvedName.isNullOrBlank()) {
+                prefs.cachedLocationName = resolvedName
+            }
+            val finalName = resolvedName ?: prefs.cachedLocationName ?: prefs.fixedCityName
             return Triple(location.latitude, location.longitude, finalName)
         }
 
-        return Triple(prefs.fixedLatitude, prefs.fixedLongitude, prefs.fixedCityName)
+        val fallbackName = prefs.cachedLocationName ?: prefs.fixedCityName
+        return Triple(prefs.fixedLatitude, prefs.fixedLongitude, fallbackName)
     }
 
     @SuppressLint("MissingPermission")
-    private suspend fun getLastKnownLocation(): Location? = suspendCancellableCoroutine { cont ->
+    private suspend fun getBestLocation(hasFine: Boolean): Location? = suspendCancellableCoroutine { cont ->
         try {
             val fusedClient = LocationServices.getFusedLocationProviderClient(context)
             fusedClient.lastLocation
-                .addOnSuccessListener { loc ->
-                    if (cont.isActive) cont.resume(loc)
+                .addOnSuccessListener { lastLoc ->
+                    if (lastLoc != null) {
+                        if (cont.isActive) cont.resume(lastLoc)
+                    } else {
+                        val priority = if (hasFine) {
+                            Priority.PRIORITY_HIGH_ACCURACY
+                        } else {
+                            Priority.PRIORITY_BALANCED_POWER_ACCURACY
+                        }
+                        fusedClient.getCurrentLocation(priority, null)
+                            .addOnSuccessListener { currLoc ->
+                                if (cont.isActive) cont.resume(currLoc)
+                            }
+                            .addOnFailureListener {
+                                if (cont.isActive) cont.resume(null)
+                            }
+                    }
                 }
                 .addOnFailureListener {
                     if (cont.isActive) cont.resume(null)
@@ -126,30 +151,63 @@ class WeatherRepository(private val context: Context) {
         }
     }
 
-    private fun getSubLocalityName(lat: Double, lon: Double): String? {
+    /**
+     * Ưu tiên Nominatim (OpenStreetMap) vì đã cập nhật đầy đủ địa giới Phường/Xã mới tại Việt Nam
+     * sau sáp nhập (bỏ cấp huyện). Nếu mạng lỗi mới fallback về Android Geocoder.
+     */
+    private fun resolveLocationName(lat: Double, lon: Double): String? {
+        getNominatimWardOrCommune(lat, lon)?.let { return it }
+        return getGeocoderWardOrCommune(lat, lon)
+    }
+
+    private fun getNominatimWardOrCommune(lat: Double, lon: Double): String? {
+        return try {
+            val url = "https://nominatim.openstreetmap.org/reverse?format=jsonv2" +
+                    "&lat=$lat&lon=$lon&accept-language=vi&addressdetails=1"
+            val request = Request.Builder()
+                .url(url)
+                .header("User-Agent", "OneUIWidget-Android/1.0")
+                .build()
+            val response = httpClient.newCall(request).execute()
+            if (!response.isSuccessful) return null
+            val body = response.body?.string() ?: return null
+            val root = JSONObject(body)
+            val addrObj = root.optJSONObject("address") ?: return null
+            val addrMap = mutableMapOf<String, String>()
+            val keys = addrObj.keys()
+            while (keys.hasNext()) {
+                val key = keys.next()
+                val valStr = addrObj.optString(key, "")
+                if (valStr.isNotBlank()) {
+                    addrMap[key] = valStr
+                }
+            }
+            LocationNameFormatter.fromNominatimAddress(addrMap)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun getGeocoderWardOrCommune(lat: Double, lon: Double): String? {
         return try {
             val geocoder = Geocoder(context, Locale("vi", "VN"))
-            val addresses = geocoder.getFromLocation(lat, lon, 1)
+            val addresses = geocoder.getFromLocation(lat, lon, 3)
             if (!addresses.isNullOrEmpty()) {
-                val addr = addresses[0]
-                val subLoc = addr.subLocality
-                val locality = addr.locality ?: addr.subAdminArea
-                when {
-                    !subLoc.isNullOrBlank() -> {
-                        if (subLoc.startsWith("Phường", true) || subLoc.startsWith("P.", true) ||
-                            subLoc.startsWith("Xã", true) || subLoc.startsWith("X.", true)
-                        ) {
-                            subLoc
-                        } else {
-                            "P. $subLoc"
-                        }
+                for (addr in addresses) {
+                    val candidate = LocationNameFormatter.fromGeocoderFields(
+                        subLocality = addr.subLocality,
+                        locality = addr.locality,
+                        subAdminArea = addr.subAdminArea,
+                        adminArea = addr.adminArea,
+                        addressLine = if (addr.maxAddressLineIndex >= 0) addr.getAddressLine(0) else null
+                    )
+                    if (!candidate.isNullOrBlank()) {
+                        return candidate
                     }
-                    !locality.isNullOrBlank() -> locality
-                    else -> addr.adminArea
                 }
-            } else {
-                null
             }
+            null
         } catch (e: Exception) {
             null
         }

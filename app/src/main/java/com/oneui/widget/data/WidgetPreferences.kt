@@ -13,6 +13,7 @@ class WidgetPreferences(context: Context) {
         private const val KEY_FIXED_LON = "fixed_longitude"
         private const val KEY_FIXED_CITY = "fixed_city_name"
         private const val KEY_CACHED_WEATHER_JSON = "cached_weather_json"
+        private const val KEY_CACHED_LOCATION_NAME = "cached_location_name"
         private const val KEY_LAST_UPDATE_TIME = "last_update_timestamp"
     }
 
@@ -40,6 +41,10 @@ class WidgetPreferences(context: Context) {
     var cachedWeatherJson: String?
         get() = prefs.getString(KEY_CACHED_WEATHER_JSON, null)
         set(value) = prefs.edit().putString(KEY_CACHED_WEATHER_JSON, value).apply()
+
+    var cachedLocationName: String?
+        get() = prefs.getString(KEY_CACHED_LOCATION_NAME, null)
+        set(value) = prefs.edit().putString(KEY_CACHED_LOCATION_NAME, value).apply()
 
     var lastUpdateTime: Long
         get() = prefs.getLong(KEY_LAST_UPDATE_TIME, 0L)
