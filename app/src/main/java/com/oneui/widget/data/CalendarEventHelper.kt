@@ -40,8 +40,13 @@ class CalendarEventHelper(private val context: Context) {
 
         try {
             // 2. Thêm ngày lễ Việt Nam (Dương lịch & Âm lịch) nếu danh sách chưa đủ số lượng
-            val now = System.currentTimeMillis()
-            val holidays = getVietnameseHolidays().filter { it.timestamp >= now }
+            val startOfToday = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }.timeInMillis
+            val holidays = getVietnameseHolidays().filter { it.timestamp >= startOfToday }
                 .sortedBy { it.timestamp }
 
             for (h in holidays) {
@@ -103,6 +108,10 @@ class CalendarEventHelper(private val context: Context) {
                 val isAllDay = it.getInt(allDayIdx) == 1
                 val calName = it.getString(calNameIdx) ?: "Lịch cá nhân"
 
+                if (shouldExcludeEvent(title, calName)) {
+                    continue
+                }
+
                 val datePart = dateFormat.format(begin)
                 val timePart = if (isAllDay) "All Day" else timeFormat.format(begin)
                 val dateInfo = "$datePart  $timePart"
@@ -134,6 +143,7 @@ class CalendarEventHelper(private val context: Context) {
             addSolarHoliday(list, year, 9, 2, "Quốc khánh Việt Nam")
             addSolarHoliday(list, year, 10, 20, "Phụ nữ Việt Nam")
             addSolarHoliday(list, year, 11, 20, "Nhà giáo Việt Nam")
+            addSolarHoliday(list, year, 11, 24, "Ngày Văn hóa Việt Nam")
             addSolarHoliday(list, year, 12, 22, "Thành lập QĐND Việt Nam")
             addSolarHoliday(list, year, 12, 25, "Lễ Giáng Sinh")
 
@@ -202,6 +212,46 @@ class CalendarEventHelper(private val context: Context) {
             }
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    companion object {
+        private val KOREAN_CALENDAR_KEYWORDS = listOf(
+            "south korea",
+            "holidays in korea",
+            "korean holidays",
+            "대한민국",
+            "한국",
+            "공휴일",
+            "법정기념일"
+        )
+
+        /**
+         * Loại bỏ các ngày lễ / lịch mặc định của máy Samsung nội địa Hàn Quốc
+         * (chứa ký tự Hangul hoặc thuộc lịch ngày lễ Hàn Quốc).
+         */
+        fun shouldExcludeEvent(title: String, calendarName: String): Boolean {
+            if (containsHangul(title) || containsHangul(calendarName)) {
+                return true
+            }
+            val lowerCal = calendarName.lowercase(Locale.ROOT)
+            val lowerTitle = title.lowercase(Locale.ROOT)
+            return KOREAN_CALENDAR_KEYWORDS.any { keyword ->
+                lowerCal.contains(keyword) || lowerTitle.contains(keyword)
+            }
+        }
+
+        private fun containsHangul(text: String): Boolean {
+            for (ch in text) {
+                val code = ch.code
+                if (code in 0xAC00..0xD7A3 || // Hangul Syllables
+                    code in 0x1100..0x11FF || // Hangul Jamo
+                    code in 0x3130..0x318F    // Hangul Compatibility Jamo
+                ) {
+                    return true
+                }
+            }
+            return false
         }
     }
 }
